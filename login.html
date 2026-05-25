@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>IRON PULSE — Sign In</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#17a1cf",
+            "background-light": "#f1f2f4",
+            "background-dark": "#121416",
+            "surface-dark": "#1A1D21",
+            "text-muted": "#7A8490",
+          },
+          fontFamily: { "display": ["Space Grotesk", "sans-serif"] },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+          backgroundImage: { 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))' }
+        },
+      },
+    }
+  </script>
+  <style>
+    body { min-height: max(884px, 100dvh); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Toast animation */
+    @keyframes slideUp {
+      from { transform: translateY(100px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    .toast-enter { animation: slideUp 0.35s ease forwards; }
+    .toast-exit  { animation: fadeOut 0.4s ease forwards; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.7s linear infinite; }
+
+    /* Button loading state */
+    .btn-loading { pointer-events: none; opacity: 0.85; }
+  </style>
+</head>
+
+<body class="bg-background-dark font-display text-white min-h-screen flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white">
+
+  <!-- Ambient Glow -->
+  <div class="fixed top-[-20%] left-[-20%] w-[80%] h-[60%] bg-primary/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+  <div class="fixed bottom-[-10%] right-[-10%] w-[60%] h-[40%] bg-primary/5 rounded-full blur-[100px] pointer-events-none z-0"></div>
+
+  <!-- Hero Image -->
+  <div class="relative w-full h-[35vh] overflow-hidden z-0">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBiZQz0Kxc9Bqx0Rz8CE2KTKcANCmqYS_Q0LR82WYCYE1ZZOzMMXLt1D6q61ATjrRBYjSZo_UWaImh1x-gPhnNOC08ivC4k4PsWzCxd1J7sL-m6v64PZS7xFPH0m6_zJ88V81ScnM7zjpCBlU4UOvjkBFBVXDohLLuh25QsUxRT55ROeHVogmxDCw3Afq_W1neA7m_F_fdTbmvBztOKQbLvRr81WjlX1cmJlcMRCuyjroswLsPlqnUF90xVrf21n4m_Qz2wJ5ART6im');"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-background-dark/30 via-background-dark/60 to-background-dark"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent"></div>
+    <!-- Branding -->
+    <div class="absolute top-6 left-6 flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-lg">
+        <span class="material-symbols-outlined text-[20px]">fitness_center</span>
+      </div>
+      <span class="text-white font-bold tracking-tight text-lg drop-shadow-md">IRON PULSE</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="relative z-10 flex flex-col flex-1 px-6 -mt-12 pb-8">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-1 mb-8">
+      <h1 class="text-white tracking-tight text-[40px] font-bold leading-[1.1] drop-shadow-sm">
+        Welcome back,<br/><span class="text-primary">Athlete.</span>
+      </h1>
+      <p class="text-text-muted text-lg font-normal leading-normal mt-2">Access your training schedule.</p>
+    </div>
+
+    <!-- Form -->
+    <form id="loginForm" class="flex flex-col gap-5 w-full max-w-md mx-auto" onsubmit="handleLogin(event)">
+
+      <!-- Email -->
+      <div class="flex flex-col gap-2 group">
+        <label class="text-white text-sm font-medium ml-1">Email Address</label>
+        <div class="relative flex items-center">
+          <input id="email" class="form-input flex w-full rounded-lg bg-surface-dark border-transparent focus:border-primary focus:ring-1 focus:ring-primary h-14 placeholder:text-text-muted/50 px-4 text-white text-base font-normal transition-all duration-200 shadow-sm" placeholder="athlete@ironpulse.com" type="email"/>
+          <span class="absolute right-4 text-text-muted group-focus-within:text-primary transition-colors">
+            <span class="material-symbols-outlined">mail</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="flex flex-col gap-2 group">
+        <div class="flex justify-between items-center ml-1">
+          <label class="text-white text-sm font-medium">Password</label>
+          <a class="text-xs font-medium text-text-muted hover:text-primary transition-colors" href="#">Forgot Password?</a>
+        </div>
+        <div class="relative flex items-center">
+          <input id="password" class="form-input flex w-full rounded-lg bg-surface-dark border-transparent focus:border-primary focus:ring-1 focus:ring-primary h-14 placeholder:text-text-muted/50 px-4 pr-12 text-white text-base font-normal transition-all duration-200 shadow-sm" placeholder="••••••••" type="password"/>
+          <button id="togglePwd" class="absolute right-0 top-0 h-full px-4 flex items-center justify-center text-text-muted hover:text-white transition-colors focus:outline-none" type="button" onclick="togglePassword('password','togglePwdIcon')">
+            <span id="togglePwdIcon" class="material-symbols-outlined" style="font-size:20px;">visibility_off</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      <p id="formError" class="hidden text-red-400 text-sm ml-1 -mt-2"></p>
+
+      <!-- Sign In Button -->
+      <button id="signInBtn" type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-bold text-lg h-14 rounded-lg shadow-[0_4px_20px_-4px_rgba(23,161,207,0.5)] transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 mt-4">
+        <span id="btnLabel">Sign In</span>
+        <span id="btnIcon" class="material-symbols-outlined text-[20px]">arrow_forward</span>
+        <!-- Spinner (hidden by default) -->
+        <svg id="btnSpinner" class="hidden spinner w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+      </button>
+
+      <!-- Divider -->
+      <div class="relative flex py-2 items-center">
+        <div class="flex-grow border-t border-surface-dark"></div>
+        <span class="flex-shrink mx-4 text-text-muted text-xs uppercase tracking-wider">Or continue with</span>
+        <div class="flex-grow border-t border-surface-dark"></div>
+      </div>
+
+      <!-- Social Buttons -->
+      <div class="grid grid-cols-2 gap-4">
+        <button onclick="simulateSocial('Google')" type="button" class="flex items-center justify-center gap-2 h-12 rounded-lg border border-surface-dark bg-surface-dark/50 hover:bg-surface-dark hover:border-text-muted/30 transition-all text-white font-medium text-sm">
+          <img alt="Google Logo" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDteqkUrPqzgg5ImUnbpemCrBQaMQ89HQVElnupGHH896U9VsXjcs8kHAJPqLrSuquLsKyaECtGv3hE28xlalzapmq0W3QjyNFQGze_GT49P-wNavC5sewMYSTUfvfWeJWL-QxNjLoo0c-GqCBBwBn2fx1I1Jk-Ya-aOSm3CAsPjJ4V9NxYk4iXoxVk4z9kaBgU5SajYFYDMUVQP24FX7aBviDkWNpmvA1cUwF5MsBtMqAVmiYr1MMj2F2rBzaIakukpPeRB1HpsJh"/>
+          Google
+        </button>
+        <button onclick="simulateSocial('Apple')" type="button" class="flex items-center justify-center gap-2 h-12 rounded-lg border border-surface-dark bg-surface-dark/50 hover:bg-surface-dark hover:border-text-muted/30 transition-all text-white font-medium text-sm">
+          <img alt="Apple Logo" class="w-5 h-5 invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgg-rIhaqvyu4KLIokG8rsU4kWIvJxHnmmRWwSfLiKoF32f4_tDv_bDd5NKCTa47uSYjQIV2dpbUX8tZPQXvG25jS2RxbA3O_ZY_ZLKp-KGVP6cGWzA21eX-12GH3p8w9jhHKFs-5C94EKi7ckb_hzfu1RBBUSwMcuH7bzVDH-tMTGDxvj1Mg4jYWIdb1UPi0V5KmOl96t_vt7jV_XIkQJVulyBqiEsp1VVtiZFJO_RwhE1wZxwCkqfFTqGtkqMDD7bcr9vWMwEKj3"/>
+          Apple
+        </button>
+      </div>
+    </form>
+
+    <!-- Footer -->
+    <div class="mt-auto pt-8 text-center">
+      <p class="text-text-muted text-sm">
+        Don't have an account?
+        <a class="text-primary font-bold hover:text-white transition-colors ml-1" href="register.html">Sign Up</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div id="toastInner" class="flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl text-white text-sm font-medium min-w-[260px] max-w-[90vw]">
+      <span id="toastIcon" class="material-symbols-outlined text-[22px]"></span>
+      <span id="toastMsg"></span>
+    </div>
+  </div>
+
+  <script>
+    /* ── Toggle password visibility ── */
+    function togglePassword(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon  = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility';
+      } else {
+        input.type = 'password';
+        icon.textContent = 'visibility_off';
+      }
+    }
+
+    /* ── Show toast ── */
+    function showToast(message, type = 'success') {
+      const toast      = document.getElementById('toast');
+      const toastInner = document.getElementById('toastInner');
+      const toastIcon  = document.getElementById('toastIcon');
+      const toastMsg   = document.getElementById('toastMsg');
+
+      const colors = {
+        success: 'bg-emerald-600',
+        error:   'bg-red-600',
+        info:    'bg-primary'
+      };
+      const icons = { success: 'check_circle', error: 'error', info: 'info' };
+
+      toastInner.className = `flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl text-white text-sm font-medium min-w-[260px] max-w-[90vw] ${colors[type]}`;
+      toastIcon.textContent = icons[type];
+      toastMsg.textContent  = message;
+
+      toast.classList.remove('hidden');
+      toastInner.classList.remove('toast-exit');
+      toastInner.classList.add('toast-enter');
+
+      setTimeout(() => {
+        toastInner.classList.remove('toast-enter');
+        toastInner.classList.add('toast-exit');
+        setTimeout(() => { toast.classList.add('hidden'); }, 400);
+      }, 2800);
+    }
+
+    /* ── Set button loading state ── */
+    function setLoading(isLoading) {
+      const btn     = document.getElementById('signInBtn');
+      const label   = document.getElementById('btnLabel');
+      const icon    = document.getElementById('btnIcon');
+      const spinner = document.getElementById('btnSpinner');
+
+      if (isLoading) {
+        btn.classList.add('btn-loading');
+        label.textContent = 'Signing in…';
+        icon.classList.add('hidden');
+        spinner.classList.remove('hidden');
+      } else {
+        btn.classList.remove('btn-loading');
+        label.textContent = 'Sign In';
+        icon.classList.remove('hidden');
+        spinner.classList.add('hidden');
+      }
+    }
+
+    /* ── Handle login ── */
+    function handleLogin(e) {
+      e.preventDefault();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errEl    = document.getElementById('formError');
+
+      errEl.classList.add('hidden');
+
+      // Basic validation
+      if (!email) {
+        errEl.textContent = 'Please enter your email address.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (!password) {
+        errEl.textContent = 'Please enter your password.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      setLoading(true);
+
+      // Simulate network delay
+      setTimeout(() => {
+        setLoading(false);
+        showToast('Welcome back, Athlete! 🔥', 'success');
+
+        // Simulate redirect after short delay
+        setTimeout(() => {
+          // In a real app this would go to the dashboard
+          showToast('Redirecting to your dashboard…', 'info');
+        }, 1800);
+      }, 1600);
+    }
+
+    /* ── Social login simulation ── */
+    function simulateSocial(provider) {
+      showToast(`Connecting with ${provider}…`, 'info');
+      setTimeout(() => {
+        showToast(`Signed in with ${provider}! 🔥`, 'success');
+      }, 1800);
+    }
+  </script>
+</body>
+</html>
