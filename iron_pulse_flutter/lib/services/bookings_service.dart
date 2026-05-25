@@ -1,0 +1,280 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models.dart';
+
+class BookingsService {
+  final SupabaseClient _client = Supabase.instance.client;
+
+  Future<Booking?> getUserBookingForSchedule(String userId, String scheduleId) async {
+    try {
+      final response = await _client
+          .from('bookings')
+          .select()
+          .eq('user_id', userId)
+          .eq('schedule_id', scheduleId)
+          .maybeSingle();
+      if (response == null) return null;
+      return Booking.fromJson(response);
+    } catch (e) {
+      print('Error getting user booking: $e');
+      return null;
+    }
+  }
+
+  Future<Booking?> reserveClass(String userId, ClassSchedule schedule) async {
+    try {
+      // Verificar si ya tiene reserva
+      final existing = await getUserBookingForSchedule(userId, schedule.id);
+      if (existing != null && existing.status != BookingStatus.cancelled) {
+        throw Exception('User already has an active booking for this class.');
+      }
+
+      // Obtener conteo actual de reservas confirmadas
+      final countResponse = await _client
+          .from('bookings')
+          .select('id')
+          .eq('schedule_id', schedule.id)
+          .eq('status', 'confirmed')
+          .count(CountOption.exact);
+          
+      final confirmedCount = countResponse.count ?? 0;
+      final availableSpots = schedule.capacity - confirmedCount;
+      
+      final newStatus = availableSpots > 0 ? 'confirmed' : 'waitlist';
+
+      // Crear reserva (upsert en caso de que esté cancelada)
+      final response = await _client.from('bookings').upsert({
+        if (existing != null) 'id': existing.id,
+        'user_id': userId,
+        'schedule_id': schedule.id,
+        'status': newStatus,
+        'is_present': false,
+        'created_at': DateTime.now().toIso8601String(),
+      }, onConflict: 'user_id, schedule_id').select().single();
+
+      return Booking.fromJson(response);
+    } catch (e) {
+      print('Error reserving class: $e');
+      return null;
+    }
+  }
+
+  Future<bool> cancelBooking(String bookingId) async {
+    try {
+      await _client
+          .from('bookings')
+          .update({'status': 'cancelled'})
+          .eq('id', bookingId);
+      return true;
+    } catch (e) {
+      print('Error cancelling booking: $e');
+      return false;
+    }
+  }
+
+  Future<bool> markPresence(String bookingId, bool isPresent) async {
+    try {
+      await _client
+          .from('bookings')
+          .update({'is_present': isPresent})
+          .eq('id', bookingId);
+      return true;
+    } catch (e) {
+      print('Error marking presence: $e');
+      return false;
+    }
+  }
+
+  // --- Admin Methods ---
+
+  Future<List<Booking>> getBookingsForSchedule(String scheduleId) async {
+    try {
+      final response = await _client
+          .from('bookings')
+          .select('*, profiles(*)')
+          .eq('schedule_id', scheduleId)
+          .order('created_at', ascending: true);
+          
+      return (response as List).map((e) => Booking.fromJson(e)).toList();
+    } catch (e) {
+      print('Error getting bookings for schedule: $e');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> getTodayMetrics() async {
+    try {
+      final todayStart = DateTime.now().copyWith(hour: 0, minute: 0, second: 0).toIso8601String();
+      final todayEnd = DateTime.now().copyWith(hour: 23, minute: 59, second: 59).toIso8601String();
+
+      // 1. Clases de hoy
+      final schedules = await _client
+          .from('class_schedules')
+          .select()
+          .gte('start_time', todayStart)
+          .lte('start_time', todayEnd);
+
+      int totalCapacity = 0;
+      List<String> scheduleIds = [];
+      for (var s in schedules as List) {
+        totalCapacity += (s['capacity'] as int? ?? 0);
+        scheduleIds.add(s['id'] as String);
+      }
+
+      if (scheduleIds.isEmpty) {
+        return {
+          'confirmed': 0,
+          'waitlist': 0,
+          'occupancy_rate': 0.0,
+          'happening_now': 0,
+        };
+      }
+
+      // 2. Bookings de hoy
+      final bookings = await _client
+          .from('bookings')
+          .select('status')
+          .inFilter('schedule_id', scheduleIds);
+
+      int confirmed = 0;
+      int waitlist = 0;
+
+      for (var b in bookings as List) {
+        if (b['status'] == 'confirmed') confirmed++;
+        if (b['status'] == 'waitlist') waitlist++;
+      }
+
+      double occupancyRate = totalCapacity > 0 ? (confirmed / totalCapacity) * 100 : 0.0;
+
+      // 3. Happening now
+      final nowStr = DateTime.now().toIso8601String();
+      final happeningNowResponse = await _client
+          .from('class_schedules')
+          .select('id')
+          .lte('start_time', nowStr)
+          .gte('end_time', nowStr);
+          
+      int happeningNow = (happeningNowResponse as List).length;
+
+      return {
+        'confirmed': confirmed,
+        'waitlist': waitlist,
+        'occupancy_rate': occupancyRate,
+        'happening_now': happeningNow,
+      };
+    } catch (e) {
+      print('Error getting metrics: $e');
+      return {
+        'confirmed': 0,
+        'waitlist': 0,
+        'occupancy_rate': 0.0,
+        'happening_now': 0,
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> getAdminDashboardMetrics() async {
+    try {
+      final todayStart = DateTime.now().copyWith(hour: 0, minute: 0, second: 0).toIso8601String();
+      final todayEnd = DateTime.now().copyWith(hour: 23, minute: 59, second: 59).toIso8601String();
+
+      // 1. Scheduled Classes Today
+      final schedulesResponse = await _client
+          .from('class_schedules')
+          .select('id, capacity, start_time, end_time')
+          .gte('start_time', todayStart)
+          .lte('start_time', todayEnd);
+
+      int totalCapacity = 0;
+      List<String> scheduleIds = [];
+      for (var s in schedulesResponse as List) {
+        totalCapacity += (s['capacity'] as int? ?? 0);
+        scheduleIds.add(s['id'] as String);
+      }
+
+      int scheduledClasses = scheduleIds.length;
+      double occupancyRate = 0.0;
+
+      if (scheduleIds.isNotEmpty) {
+        final bookings = await _client
+            .from('bookings')
+            .select('status')
+            .inFilter('schedule_id', scheduleIds)
+            .eq('status', 'confirmed');
+        
+        int confirmed = (bookings as List).length;
+        occupancyRate = totalCapacity > 0 ? (confirmed / totalCapacity) * 100 : 0.0;
+      }
+
+      // 2. Total Students
+      final studentsResponse = await _client
+          .from('profiles')
+          .select('id')
+          .eq('role', 'client')
+          .count(CountOption.exact);
+      int totalStudents = studentsResponse.count ?? 0;
+
+      // 3. Active Types (Categories)
+      final categoriesResponse = await _client
+          .from('categories')
+          .select('id')
+          .count(CountOption.exact);
+      int activeTypes = categoriesResponse.count ?? 0;
+
+      // 4. Happening Now or Next Upcoming
+      final nowStr = DateTime.now().toIso8601String();
+      // Try to find one happening right now, if not, the next upcoming one today
+      var liveClassResponse = await _client
+          .from('class_schedules')
+          .select('*, classes(*), instructors(*)')
+          .lte('start_time', nowStr)
+          .gte('end_time', nowStr)
+          .maybeSingle();
+
+      if (liveClassResponse == null) {
+        // Find next upcoming
+        liveClassResponse = await _client
+            .from('class_schedules')
+            .select('*, classes(*), instructors(*)')
+            .gte('start_time', nowStr)
+            .lte('start_time', todayEnd)
+            .order('start_time', ascending: true)
+            .limit(1)
+            .maybeSingle();
+      }
+
+      ClassSchedule? happeningNowClass;
+      int happeningNowBooked = 0;
+
+      if (liveClassResponse != null) {
+        happeningNowClass = ClassSchedule.fromJson(liveClassResponse);
+        final countResponse = await _client
+            .from('bookings')
+            .select('id')
+            .eq('schedule_id', happeningNowClass.id)
+            .eq('status', 'confirmed')
+            .count(CountOption.exact);
+        happeningNowBooked = countResponse.count ?? 0;
+      }
+
+      return {
+        'scheduled_classes': scheduledClasses,
+        'occupancy_rate': occupancyRate,
+        'total_students': totalStudents,
+        'active_types': activeTypes,
+        'happening_now_class': happeningNowClass,
+        'happening_now_booked': happeningNowBooked,
+      };
+
+    } catch (e) {
+      print('Error getting admin dashboard metrics: $e');
+      return {
+        'scheduled_classes': 0,
+        'occupancy_rate': 0.0,
+        'total_students': 0,
+        'active_types': 0,
+        'happening_now_class': null,
+        'happening_now_booked': 0,
+      };
+    }
+  }
+}

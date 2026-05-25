@@ -13,7 +13,11 @@ import 'screens/exercises_screen.dart';
 import 'screens/history_screen.dart';
 import 'widgets/rest_timer.dart';
 import 'services/supabase_auth_service.dart';
+import 'services/profile_service.dart';
+import 'models.dart';
+import 'screens/admin_dashboard_screen.dart';
 import 'home_page.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -39,7 +43,7 @@ class IronPulseApp extends StatelessWidget {
       title: 'Iron Pulse',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+      home: const AuthWrapper(),
       routes: {
         '/register': (context) => const RegisterPage(),
       },
@@ -47,7 +51,41 @@ class IronPulseApp extends StatelessWidget {
   }
 }
 
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<AuthState>(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator(color: CyberTheme.cyberTeal)));
+        }
+        
+        final session = snapshot.data?.session;
+        if (session != null) {
+          return FutureBuilder<Profile?>(
+            future: ProfileService().getCurrentProfile(),
+            builder: (context, profileSnapshot) {
+              if (profileSnapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(body: Center(child: CircularProgressIndicator(color: CyberTheme.cyberTeal)));
+              }
+              
+              final role = profileSnapshot.data?.role ?? UserRole.client;
+              if (role == UserRole.admin) {
+                return const AdminDashboardScreen();
+              } else {
+                return const HomePage();
+              }
+            },
+          );
+        }
+        return const LoginPage();
+      },
+    );
+  }
+}
 class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
 

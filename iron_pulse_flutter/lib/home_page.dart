@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-
+import 'package:intl/intl.dart';
+import '../models.dart';
+import '../services/classes_service.dart';
+import '../services/profile_service.dart';
+import '../services/supabase_auth_service.dart';
+import 'screens/class_detail_screen.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -19,8 +24,34 @@ class _HomePageState extends State<HomePage> {
   final Color slate800 = const Color(0xFF1E293B);
 
   int _selectedFilterIndex = 0;
-  final List<String> _filters = ["All Classes", "Cardio", "Strength", "Morning", "Evening"];
+  List<Category> _categories = [];
+  List<ClassSchedule> _schedules = [];
+  Profile? _profile;
+  bool _isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    
+    _profile = await ProfileService().getCurrentProfile();
+    _categories = await ClassesService().getCategories();
+    
+    await _loadSchedules();
+  }
+  
+  Future<void> _loadSchedules() async {
+    String? catId;
+    if (_selectedFilterIndex > 0 && _selectedFilterIndex <= _categories.length) {
+      catId = _categories[_selectedFilterIndex - 1].id;
+    }
+    _schedules = await ClassesService().getUpcomingSchedules(categoryId: catId);
+    if (mounted) setState(() => _isLoading = false);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,9 +92,9 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Hola, Javier 👋",
-                  style: TextStyle(
+                Text(
+                  _profile?.fullName != null ? "Hola, ${_profile!.fullName} 👋" : "Hola 👋",
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -110,6 +141,12 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () async {
+              await SupabaseAuthService().signOut();
+            },
           ),
         ],
       ),
@@ -158,38 +195,48 @@ class _HomePageState extends State<HomePage> {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             physics: const BouncingScrollPhysics(),
-            children: [
-              _buildFeaturedCard(
-                imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB6Fc-f51JX3lW_STvey0uNu6Ft29MdcnFCU6b3batWN2hFQMtW09B9-TzYuQT6ZCiSnvqUxUBiXGRbgnHJZacmFE7i02axM0Kbc9q4ECaC3Ed6clRMgmPP5JP_2yRiiDgl-DqLL70pB4_2wMHZyNaoEKQpx-EBtTKJDoG-3ovJyNLNUTwePapQEu6Vcgd7Exm58JAuhFlgWtzOo36pdwu__XFeiEy_WLQ0TzJLTgLbKFwqKQHTfioQpdIwO4PTVwe4hrYTdCBQzUX_',
-                badgeColor: const Color(0xFF78CC33),
-                badgeText: "4 Spots",
-                tagColor: primary,
-                tagText: "HIGH INTENSITY",
-                title: "CrossFit WOD",
-                time: "18:00",
-                duration: "60 min",
-                buttonText: "Reservar",
-                buttonBgColor: primary,
-                buttonTextColor: Colors.white,
-              ),
-              const SizedBox(width: 16),
-              _buildFeaturedCard(
-                imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDWwsMz0WJzF92gYYIDCTW_A7i8EZ-kIK82PBuQrGe17TDb_ED4AcjJWTpQ9xFC_9CBOiIaf-ftqHZOn8OETvkqf69eEKRTXWB71wObTPsZMxGmC07nYMYtOuZd7m2S2TvoTGYPH1r8beEFog_k_kIMRVT6OqbiE2hK2V5HvShyltniUfQP3PNWAr5UubW-iPaYxgtEp6938R3jqQ4khTA2yQb5W_8rj7mzJcUUoMMkiDqRwUbnBxbsu-YDUSBzylhxkr_hUdGguIdl',
-                badgeColor: Colors.redAccent,
-                badgeText: "Full",
-                badgeIcon: Icons.block,
-                tagColor: Colors.purpleAccent,
-                tagText: "FLEXIBILITY",
-                title: "Power Yoga",
-                time: "07:00",
-                duration: "45 min",
-                buttonText: "Join Waitlist",
-                buttonBgColor: surfaceDark,
-                buttonBorderColor: slate700,
-                buttonTextColor: slate400,
-              ),
-              const SizedBox(width: 8),
-            ],
+            children: _schedules.isNotEmpty 
+              ? _schedules.take(3).map((schedule) {
+                  final classModel = schedule.classModel;
+                  final category = _categories.firstWhere(
+                    (c) => c.id == classModel?.categoryId,
+                    orElse: () => Category(id: '', name: 'CLASS', iconUrl: null)
+                  );
+                  final isFull = schedule.availableSpots <= 0;
+                  final timeFormat = DateFormat('HH:mm');
+                  
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => ClassDetailScreen(scheduleId: schedule.id)));
+                      },
+                      child: _buildFeaturedCard(
+                        imageUrl: classModel?.imageUrl ?? 'https://via.placeholder.com/280x360',
+                        badgeColor: isFull ? Colors.redAccent : const Color(0xFF78CC33),
+                        badgeText: isFull ? "Full" : "${schedule.availableSpots} Spots",
+                        badgeIcon: isFull ? Icons.block : null,
+                        tagColor: primary,
+                        tagText: category.name.toUpperCase(),
+                        title: classModel?.name ?? 'Class',
+                        time: timeFormat.format(schedule.startTime),
+                        duration: "${classModel?.durationMinutes ?? 60} min",
+                        buttonText: isFull ? "Join Waitlist" : "Reservar",
+                        buttonBgColor: isFull ? surfaceDark : primary,
+                        buttonBorderColor: isFull ? slate700 : null,
+                        buttonTextColor: isFull ? slate400 : Colors.white,
+                      ),
+                    ),
+                  );
+                }).toList() 
+              : [
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text("No featured classes available.", style: TextStyle(color: Colors.white54)),
+                    ),
+                  ),
+                ],
           ),
         ),
       ],
@@ -374,6 +421,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFilterBar() {
+    List<String> filterNames = ["All Classes"];
+    filterNames.addAll(_categories.map((e) => e.name));
+    
     return ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -383,7 +433,7 @@ class _HomePageState extends State<HomePage> {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            itemCount: _filters.length,
+            itemCount: filterNames.length,
             itemBuilder: (context, index) {
               final isSelected = index == _selectedFilterIndex;
               return GestureDetector(
@@ -391,6 +441,7 @@ class _HomePageState extends State<HomePage> {
                   setState(() {
                     _selectedFilterIndex = index;
                   });
+                  _loadSchedules();
                 },
                 child: Container(
                   height: 36,
@@ -408,7 +459,7 @@ class _HomePageState extends State<HomePage> {
                         : [],
                   ),
                   child: Text(
-                    _filters[index],
+                    filterNames[index],
                     style: TextStyle(
                       color: isSelected ? Colors.white : slate400,
                       fontSize: 14,
@@ -448,46 +499,51 @@ class _HomePageState extends State<HomePage> {
                   color: slate800,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  "3",
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                child: Text(
+                  "${_schedules.length}",
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          _buildUpcomingClassItem(
-            day: "Today",
-            time: "19:00",
-            title: "HIIT Advanced",
-            badgeText: "Confirmed",
-            badgeColor: const Color(0xFF10B981),
-            badgeBgColor: const Color(0xFF10B981).withOpacity(0.2),
-            instructor: "Coach Sarah",
-            duration: "45m",
-          ),
-          const SizedBox(height: 16),
-          _buildUpcomingClassItem(
-            day: "Tmrw",
-            time: "08:00",
-            title: "Spin Cycle",
-            badgeText: "Waitlist",
-            badgeColor: Colors.amber,
-            badgeBgColor: Colors.amber.withOpacity(0.2),
-            instructor: "Coach Mike",
-            duration: "60m",
-          ),
-          const SizedBox(height: 16),
-          _buildUpcomingClassItem(
-            day: "Fri",
-            time: "12:00",
-            title: "Open Gym",
-            badgeText: "Past",
-            badgeColor: slate400,
-            badgeBgColor: slate800,
-            location: "Main Floor",
-            isPast: true,
-          ),
+          if (_isLoading)
+            const Center(child: CircularProgressIndicator())
+          else if (_schedules.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Text("No upcoming classes.", style: TextStyle(color: Colors.white54)),
+            )
+          else
+            ..._schedules.map((schedule) {
+              final isPast = schedule.startTime.isBefore(DateTime.now());
+              final dayFormat = DateFormat('E');
+              final timeFormat = DateFormat('HH:mm');
+              return Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => ClassDetailScreen(scheduleId: schedule.id)));
+                    },
+                    child: _buildUpcomingClassItem(
+                      day: dayFormat.format(schedule.startTime),
+                      time: timeFormat.format(schedule.startTime),
+                      title: schedule.classModel?.name ?? 'Class',
+                      badgeText: schedule.availableSpots > 0 ? "Open" : "Waitlist",
+                      badgeColor: schedule.availableSpots > 0 ? const Color(0xFF10B981) : Colors.amber,
+                      badgeBgColor: schedule.availableSpots > 0 
+                          ? const Color(0xFF10B981).withOpacity(0.2) 
+                          : Colors.amber.withOpacity(0.2),
+                      instructor: schedule.instructor?.name,
+                      duration: "${schedule.classModel?.durationMinutes ?? 60}m",
+                      location: schedule.locationName,
+                      isPast: isPast,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              );
+            }),
         ],
       ),
     );
