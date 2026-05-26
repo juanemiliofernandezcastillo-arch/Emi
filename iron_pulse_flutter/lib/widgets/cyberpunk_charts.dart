@@ -24,11 +24,11 @@ class ConsistencyGrid extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Activity Consistency",
+                  "Consistencia de Actividad",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Text(
-                  "Last 4 Weeks",
+                  "Últimas 4 Semanas",
                   style: TextStyle(color: CyberTheme.textSecondary, fontSize: 12),
                 ),
               ],
@@ -49,7 +49,7 @@ class ConsistencyGrid extends StatelessWidget {
                   }
 
                   return Tooltip(
-                    message: "${date.month}/${date.day}: $workouts workout(s)",
+                    message: "${date.day}/${date.month}: $workouts entrenamiento(s)",
                     child: Container(
                       width: 32,
                       height: 32,
@@ -103,7 +103,7 @@ class VolumeLineChart extends StatelessWidget {
         height: 180,
         child: Center(
           child: Text(
-            "Perform workouts to see 1RM progress",
+            "Realiza entrenamientos para ver el progreso 1RM",
             style: TextStyle(color: CyberTheme.textSecondary),
           ),
         ),
@@ -267,7 +267,7 @@ class MuscleRadarChart extends StatelessWidget {
         height: 220,
         child: Center(
           child: Text(
-            "Log workouts to generate volume analysis",
+            "Registra entrenamientos para generar el análisis de volumen",
             style: TextStyle(color: CyberTheme.textSecondary),
           ),
         ),

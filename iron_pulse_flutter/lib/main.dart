@@ -126,10 +126,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     // Titles matching indices
     final List<String> titles = [
       "IRON PULSE",
-      "ACTIVE LOG",
-      "ROUTINES",
-      "EXERCISES",
-      "HISTORY"
+      "REGISTRO",
+      "RUTINAS",
+      "EJERCICIOS",
+      "HISTORIAL"
     ];
 
     final hasActiveWorkout = store.activeWorkout != null;
@@ -143,7 +143,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: CyberTheme.textSecondary),
-            tooltip: "Settings",
+            tooltip: "Ajustes",
             onPressed: () => _showSettingsDialog(context, store),
           ),
         ],
@@ -192,22 +192,22 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               ],
             ),
             activeIcon: Icon(Icons.fitness_center, color: CyberTheme.cyberTeal),
-            label: 'Log',
+            label: 'Registro',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.assignment_outlined),
             activeIcon: Icon(Icons.assignment, color: CyberTheme.cyberTeal),
-            label: 'Routines',
+            label: 'Rutinas',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.library_books_outlined),
             activeIcon: Icon(Icons.library_books, color: CyberTheme.cyberTeal),
-            label: 'Library',
+            label: 'Biblioteca',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.history_outlined),
             activeIcon: Icon(Icons.history, color: CyberTheme.cyberTeal),
-            label: 'History',
+            label: 'Historial',
           ),
         ],
       ),
@@ -227,7 +227,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 side: const BorderSide(color: CyberTheme.borderTranslucent),
               ),
               title: const Text(
-                "USER PREFERENCES",
+                "PREFERENCIAS",
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0),
               ),
               content: Column(
@@ -237,7 +237,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Weight Unit", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text("Unidad de Peso", style: TextStyle(fontWeight: FontWeight.bold)),
                       SegmentedButton<String>(
                         segments: const [
                           ButtonSegment(value: 'kg', label: Text("KG")),
@@ -261,7 +261,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Rest Timer Audio", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text("Sonido Temporizador", style: TextStyle(fontWeight: FontWeight.bold)),
                       Switch(
                         value: store.soundEnabled,
                         activeColor: CyberTheme.cyberTeal,
@@ -281,7 +281,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text("Default Rest Period", style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Text("Descanso Predeterminado", style: TextStyle(fontWeight: FontWeight.bold)),
                           Text(
                             "${store.defaultRestTime}s",
                             style: const TextStyle(color: CyberTheme.cyberTeal, fontWeight: FontWeight.bold),
@@ -313,11 +313,11 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                       // Navegación handled automatically by StreamBuilder in IronPulseApp
                     }
                   },
-                  child: const Text("SIGN OUT", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                  child: const Text("CERRAR SESIÓN", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("CLOSE"),
+                  child: const Text("CERRAR"),
                 )
               ],
             );

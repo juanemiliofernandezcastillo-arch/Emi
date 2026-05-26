@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Ready to crush your goals today?",
+                  "¿Listo para alcanzar tus metas hoy?",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const Text(
-                "Featured Classes",
+                "Clases Destacadas",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
               Row(
                 children: [
                   Text(
-                    "See All",
+                    "Ver Todas",
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -214,14 +214,14 @@ class _HomePageState extends State<HomePage> {
                       child: _buildFeaturedCard(
                         imageUrl: classModel?.imageUrl ?? 'https://via.placeholder.com/280x360',
                         badgeColor: isFull ? Colors.redAccent : const Color(0xFF78CC33),
-                        badgeText: isFull ? "Full" : "${schedule.availableSpots} Spots",
+                        badgeText: isFull ? "Llena" : "${schedule.availableSpots} Cupos",
                         badgeIcon: isFull ? Icons.block : null,
                         tagColor: primary,
                         tagText: category.name.toUpperCase(),
-                        title: classModel?.name ?? 'Class',
+                        title: classModel?.name ?? 'Clase',
                         time: timeFormat.format(schedule.startTime),
                         duration: "${classModel?.durationMinutes ?? 60} min",
-                        buttonText: isFull ? "Join Waitlist" : "Reservar",
+                        buttonText: isFull ? "Lista de Espera" : "Reservar",
                         buttonBgColor: isFull ? surfaceDark : primary,
                         buttonBorderColor: isFull ? slate700 : null,
                         buttonTextColor: isFull ? slate400 : Colors.white,
@@ -233,7 +233,7 @@ class _HomePageState extends State<HomePage> {
                   const Center(
                     child: Padding(
                       padding: EdgeInsets.all(20.0),
-                      child: Text("No featured classes available.", style: TextStyle(color: Colors.white54)),
+                      child: Text("No hay clases destacadas.", style: TextStyle(color: Colors.white54)),
                     ),
                   ),
                 ],
@@ -421,7 +421,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFilterBar() {
-    List<String> filterNames = ["All Classes"];
+    List<String> filterNames = ["Todas las Clases"];
     filterNames.addAll(_categories.map((e) => e.name));
     
     return ClipRRect(
@@ -484,7 +484,7 @@ class _HomePageState extends State<HomePage> {
           Row(
             children: [
               const Text(
-                "Upcoming Classes",
+                "Próximas Clases",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -512,7 +512,7 @@ class _HomePageState extends State<HomePage> {
           else if (_schedules.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 20),
-              child: Text("No upcoming classes.", style: TextStyle(color: Colors.white54)),
+              child: Text("No hay próximas clases.", style: TextStyle(color: Colors.white54)),
             )
           else
             ..._schedules.map((schedule) {
@@ -528,8 +528,8 @@ class _HomePageState extends State<HomePage> {
                     child: _buildUpcomingClassItem(
                       day: dayFormat.format(schedule.startTime),
                       time: timeFormat.format(schedule.startTime),
-                      title: schedule.classModel?.name ?? 'Class',
-                      badgeText: schedule.availableSpots > 0 ? "Open" : "Waitlist",
+                      title: schedule.classModel?.name ?? 'Clase',
+                      badgeText: schedule.availableSpots > 0 ? "Abierta" : "Lista de Espera",
                       badgeColor: schedule.availableSpots > 0 ? const Color(0xFF10B981) : Colors.amber,
                       badgeBgColor: schedule.availableSpots > 0 
                           ? const Color(0xFF10B981).withOpacity(0.2) 
@@ -698,10 +698,10 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(icon: Icons.home_filled, label: "Home", isSelected: true),
-                _buildNavItem(icon: Icons.calendar_today, label: "Schedule", isSelected: false),
-                _buildNavItem(icon: Icons.person_outline, label: "Profile", isSelected: false),
-                _buildNavItem(icon: Icons.settings_outlined, label: "Settings", isSelected: false),
+                _buildNavItem(icon: Icons.home_filled, label: "Inicio", isSelected: true),
+                _buildNavItem(icon: Icons.calendar_today, label: "Horario", isSelected: false),
+                _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false),
+                _buildNavItem(icon: Icons.settings_outlined, label: "Ajustes", isSelected: false),
               ],
             ),
           ),

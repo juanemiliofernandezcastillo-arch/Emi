@@ -14,8 +14,8 @@ class ExercisesScreen extends StatefulWidget {
 
 class _ExercisesScreenState extends State<ExercisesScreen> {
   String _searchQuery = "";
-  String _selectedMuscle = "All";
-  String _selectedEquipment = "All";
+  String _selectedMuscle = "Todos";
+  String _selectedEquipment = "Todos";
 
   @override
   Widget build(BuildContext context) {
@@ -24,13 +24,13 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     // Filters
     final exercises = store.allExercises.where((e) {
       final matchesSearch = e.name.toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesMuscle = _selectedMuscle == "All" || e.muscleGroup == _selectedMuscle;
-      final matchesEquip = _selectedEquipment == "All" || e.equipment == _selectedEquipment;
+      final matchesMuscle = _selectedMuscle == "Todos" || e.muscleGroup == _selectedMuscle;
+      final matchesEquip = _selectedEquipment == "Todos" || e.equipment == _selectedEquipment;
       return matchesSearch && matchesMuscle && matchesEquip;
     }).toList();
 
-    final muscles = ["All", ...muscleGroups];
-    final equipments = ["All", ...equipmentTypes];
+    final muscles = ["Todos", ...muscleGroups];
+    final equipments = ["Todos", ...equipmentTypes];
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -49,7 +49,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                 // Search field
                 TextField(
                   decoration: const InputDecoration(
-                    hintText: "Search exercise library...",
+                    hintText: "Buscar en biblioteca de ejercicios...",
                     prefixIcon: Icon(Icons.search),
                   ),
                   onChanged: (val) {
@@ -64,7 +64,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text("Muscle:", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: CyberTheme.textSecondary)),
+                    const Text("Músculo:", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: CyberTheme.textSecondary)),
                     const SizedBox(width: 8),
                     Expanded(
                       child: SizedBox(
@@ -146,7 +146,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           // Exercise List
           Expanded(
             child: exercises.isEmpty
-                ? const Center(child: Text("No exercises found", style: TextStyle(color: CyberTheme.textSecondary)))
+                ? const Center(child: Text("No se encontraron ejercicios", style: TextStyle(color: CyberTheme.textSecondary)))
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     itemCount: exercises.length,
@@ -172,7 +172,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(color: CyberTheme.cyberTeal.withOpacity(0.3)),
                                   ),
-                                  child: const Text("CUSTOM", style: TextStyle(fontSize: 8, color: CyberTheme.cyberTeal, fontWeight: FontWeight.bold)),
+                                  child: const Text("PROPIO", style: TextStyle(fontSize: 8, color: CyberTheme.cyberTeal, fontWeight: FontWeight.bold)),
                                 )
                               ]
                             ],
@@ -196,10 +196,10 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text("INSTRUCTIONS:", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: CyberTheme.cyberTeal, letterSpacing: 1.0)),
+                                  const Text("INSTRUCCIONES:", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: CyberTheme.cyberTeal, letterSpacing: 1.0)),
                                   const SizedBox(height: 6),
                                   Text(
-                                    ex.instructions.isNotEmpty ? ex.instructions : "No instructions provided.",
+                                    ex.instructions.isNotEmpty ? ex.instructions : "Sin instrucciones provistas.",
                                     style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.white70),
                                   ),
                                 ],
@@ -222,19 +222,19 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("DELETE EXERCISE?"),
-        content: Text("Are you sure you want to delete '${ex.name}'?"),
+        title: const Text("¿ELIMINAR EJERCICIO?"),
+        content: Text("¿Estás seguro de que quieres eliminar '${ex.name}'?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("CANCEL"),
+            child: const Text("CANCELAR"),
           ),
           TextButton(
             onPressed: () {
               store.deleteCustomExercise(ex.id);
               Navigator.pop(context);
             },
-            child: const Text("DELETE", style: TextStyle(color: CyberTheme.neonRose)),
+            child: const Text("ELIMINAR", style: TextStyle(color: CyberTheme.neonRose)),
           ),
         ],
       ),
@@ -313,7 +313,7 @@ class _CreateExerciseFormState extends State<CreateExerciseForm> {
             const SizedBox(height: 16),
             const Center(
               child: Text(
-                "CREATE CUSTOM EXERCISE",
+                "CREAR EJERCICIO PERSONALIZADO",
                 style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.0),
               ),
             ),
@@ -323,12 +323,12 @@ class _CreateExerciseFormState extends State<CreateExerciseForm> {
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: "Exercise Name",
-                hintText: "e.g., Incline Cable Fly",
+                labelText: "Nombre del Ejercicio",
+                hintText: "ej. Cruces en polea alta",
               ),
               validator: (val) {
                 if (val == null || val.trim().isEmpty) {
-                  return "Please enter an exercise name";
+                  return "Por favor, ingresa un nombre para el ejercicio";
                 }
                 return null;
               },
@@ -338,7 +338,7 @@ class _CreateExerciseFormState extends State<CreateExerciseForm> {
             // Muscle Group Dropdown
             DropdownButtonFormField<String>(
               value: _selectedMuscle,
-              decoration: const InputDecoration(labelText: "Primary Muscle Group"),
+              decoration: const InputDecoration(labelText: "Grupo Muscular Principal"),
               dropdownColor: CyberTheme.surface,
               items: muscleGroups.map((group) {
                 return DropdownMenuItem(value: group, child: Text(group));
@@ -356,7 +356,7 @@ class _CreateExerciseFormState extends State<CreateExerciseForm> {
             // Equipment Dropdown
             DropdownButtonFormField<String>(
               value: _selectedEquipment,
-              decoration: const InputDecoration(labelText: "Equipment Type"),
+              decoration: const InputDecoration(labelText: "Tipo de Equipamiento"),
               dropdownColor: CyberTheme.surface,
               items: equipmentTypes.map((equip) {
                 return DropdownMenuItem(value: equip, child: Text(equip));
@@ -375,8 +375,8 @@ class _CreateExerciseFormState extends State<CreateExerciseForm> {
             TextFormField(
               controller: _instructionsController,
               decoration: const InputDecoration(
-                labelText: "Instructions (Optional)",
-                hintText: "Describe form, setups, or alignment...",
+                labelText: "Instrucciones (Opcional)",
+                hintText: "Describe la postura, configuración o alineación...",
               ),
               maxLines: 3,
             ),
@@ -388,7 +388,7 @@ class _CreateExerciseFormState extends State<CreateExerciseForm> {
                 Expanded(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text("CANCEL"),
+                    child: const Text("CANCELAR"),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -406,7 +406,7 @@ class _CreateExerciseFormState extends State<CreateExerciseForm> {
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: CyberTheme.cyberTeal),
-                    child: const Text("SAVE EXERCISE", style: TextStyle(color: CyberTheme.background, fontWeight: FontWeight.bold)),
+                    child: const Text("GUARDAR EJERCICIO", style: TextStyle(color: CyberTheme.background, fontWeight: FontWeight.bold)),
                   ),
                 )
               ],

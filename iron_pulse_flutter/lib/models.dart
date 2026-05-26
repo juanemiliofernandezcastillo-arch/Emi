@@ -346,6 +346,15 @@ class Category {
       'icon_url': iconUrl,
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Category && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class Instructor {
@@ -382,6 +391,15 @@ class Instructor {
       'rating': rating,
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Instructor && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class ClassModel {
@@ -430,6 +448,15 @@ class ClassModel {
       'base_price': basePrice,
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ClassModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class ClassSchedule {
@@ -493,6 +520,15 @@ class ClassSchedule {
   int get availableSpots {
     return capacity - (bookedCount ?? 0);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ClassSchedule && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class Booking {

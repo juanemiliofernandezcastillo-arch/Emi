@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = false;
       });
 
-      _showToast("Welcome back, Athlete! 🔥");
+      _showToast("¡Bienvenido de nuevo, atleta! 🔥");
 
       // El enrutamiento es manejado globalmente por StreamBuilder en main.dart
     } on AuthException catch (e) {
@@ -110,12 +110,12 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = false;
       });
-      _showToast("Authentication failed. Please check your credentials.", isError: true);
+      _showToast("Error de autenticación. Verifica tus credenciales.", isError: true);
     }
   }
 
   Future<void> _handleSocialLogin(String provider) async {
-    _showToast("Connecting with $provider…", isInfo: true);
+    _showToast("Conectando con $provider…", isInfo: true);
     try {
       final providerEnum = provider.toLowerCase() == 'google'
           ? OAuthProvider.google
@@ -123,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
       
       await SupabaseAuthService().signInWithOAuth(providerEnum);
     } catch (e) {
-      _showToast("OAuth login failed: $e", isError: true);
+      _showToast("Error en Login OAuth: $e", isError: true);
     }
   }
 
@@ -249,9 +249,9 @@ class _LoginPageState extends State<LoginPage> {
                               height: 1.1,
                             ),
                             children: const [
-                              TextSpan(text: "Welcome back,\n"),
+                              TextSpan(text: "Bienvenido de nuevo,\n"),
                               TextSpan(
-                                text: "Athlete.",
+                                text: "atleta.",
                                 style: TextStyle(color: AppTheme.primary),
                               ),
                             ],
@@ -259,7 +259,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Access your training schedule.",
+                          "Accede a tu programa de entrenamiento.",
                           style: GoogleFonts.spaceGrotesk(
                             color: AppTheme.textMuted,
                             fontSize: 16,
@@ -270,16 +270,16 @@ class _LoginPageState extends State<LoginPage> {
                         // Email
                         CustomTextField(
                           controller: _emailController,
-                          labelText: "Email Address",
-                          hintText: "athlete@ironpulse.com",
+                          labelText: "Correo Electrónico",
+                          hintText: "atleta@ironpulse.com",
                           keyboardType: TextInputType.emailAddress,
                           rightIcon: Icons.mail_outline,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Please enter your email address.";
+                              return "Por favor ingresa tu correo electrónico.";
                             }
                             if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
-                              return "Please enter a valid email address.";
+                              return "Por favor ingresa un correo válido.";
                             }
                             return null;
                           },
@@ -296,10 +296,10 @@ class _LoginPageState extends State<LoginPage> {
                                 const SizedBox(), // Spacer
                                 GestureDetector(
                                   onTap: () {
-                                    _showToast("Password reset link sent!", isInfo: true);
+                                    _showToast("¡Enlace de recuperación enviado!", isInfo: true);
                                   },
                                   child: Text(
-                                    "Forgot Password?",
+                                    "¿Olvidaste tu contraseña?",
                                     style: GoogleFonts.spaceGrotesk(
                                       color: AppTheme.textMuted,
                                       fontSize: 12,
@@ -312,12 +312,12 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 4),
                             CustomTextField(
                               controller: _passwordController,
-                              labelText: "Password",
+                              labelText: "Contraseña",
                               hintText: "••••••••",
                               isPassword: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Please enter your password.";
+                                  return "Por favor ingresa tu contraseña.";
                                 }
                                 return null;
                               },
@@ -328,7 +328,7 @@ class _LoginPageState extends State<LoginPage> {
 
                         // Sign In button
                         PrimaryButton(
-                          text: "Sign In",
+                          text: "Login",
                           isLoading: _isLoading,
                           onPressed: _handleLogin,
                         ),
@@ -346,7 +346,7 @@ class _LoginPageState extends State<LoginPage> {
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Text(
-                                "Or continue with",
+                                "O continúa con",
                                 style: GoogleFonts.spaceGrotesk(
                                   color: AppTheme.textMuted,
                                   fontSize: 12,
@@ -404,9 +404,9 @@ class _LoginPageState extends State<LoginPage> {
                                   fontSize: 14,
                                 ),
                                 children: const [
-                                  TextSpan(text: "Don't have an account?"),
+                                  TextSpan(text: "¿No tienes una cuenta?"),
                                   TextSpan(
-                                    text: " Sign Up",
+                                    text: " Regístrate",
                                     style: TextStyle(
                                       color: AppTheme.primary,
                                       fontWeight: FontWeight.bold,

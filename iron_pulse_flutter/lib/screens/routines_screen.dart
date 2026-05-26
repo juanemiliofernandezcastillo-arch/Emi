@@ -28,11 +28,11 @@ class RoutinesScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "ROUTINES & TEMPLATES",
+                "RUTINAS Y PLANTILLAS",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.0),
               ),
               Text(
-                "${routines.length} Available",
+                "${routines.length} Disponibles",
                 style: const TextStyle(color: CyberTheme.textSecondary, fontSize: 12),
               ),
             ],
@@ -43,7 +43,7 @@ class RoutinesScreen extends StatelessWidget {
             Container(
               height: 200,
               alignment: Alignment.center,
-              child: const Text("No routines found. Create one with the '+' button!", style: TextStyle(color: CyberTheme.textSecondary)),
+              child: const Text("No hay rutinas. ¡Crea una con el botón '+'!", style: TextStyle(color: CyberTheme.textSecondary)),
             ),
 
           ...routines.map((routine) => _buildRoutineCard(context, store, routine)),
@@ -69,7 +69,7 @@ class RoutinesScreen extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
         ),
         subtitle: Text(
-          routine.description.isNotEmpty ? routine.description : "No description",
+          routine.description.isNotEmpty ? routine.description : "Sin descripción",
           style: const TextStyle(color: CyberTheme.textSecondary, fontSize: 12),
         ),
         shape: const Border(), // remove default border line on expansion
@@ -83,7 +83,7 @@ class RoutinesScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.delete_outline, color: CyberTheme.neonRose, size: 20),
                   SizedBox(width: 8),
-                  Text("Delete template", style: TextStyle(color: CyberTheme.neonRose)),
+                  Text("Eliminar plantilla", style: TextStyle(color: CyberTheme.neonRose)),
                 ],
               ),
             )
@@ -101,7 +101,7 @@ class RoutinesScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("EXERCISES:", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: CyberTheme.cyberTeal, letterSpacing: 1.0)),
+                const Text("EJERCICIOS:", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: CyberTheme.cyberTeal, letterSpacing: 1.0)),
                 const SizedBox(height: 6),
                 ...exerciseNames.map((name) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -131,7 +131,7 @@ class RoutinesScreen extends StatelessWidget {
               minimumSize: const Size(double.infinity, 44),
             ),
             child: const Text(
-              "START WORKOUT FROM TEMPLATE",
+              "INICIAR ENTRENAMIENTO CON PLANTILLA",
               style: TextStyle(color: CyberTheme.background, fontWeight: FontWeight.bold, letterSpacing: 0.5),
             ),
           ),
@@ -211,7 +211,7 @@ class _CreateRoutineSheetState extends State<CreateRoutineSheet> {
             ),
             const SizedBox(height: 16),
             const Text(
-              "CREATE CUSTOM ROUTINE",
+              "CREAR RUTINA PERSONALIZADA",
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.0),
             ),
             const SizedBox(height: 16),
@@ -220,12 +220,12 @@ class _CreateRoutineSheetState extends State<CreateRoutineSheet> {
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: "Routine Name",
-                hintText: "e.g., Upper Body Focus",
+                labelText: "Nombre de la Rutina",
+                hintText: "ej. Enfoque Tren Superior",
               ),
               validator: (val) {
                 if (val == null || val.trim().isEmpty) {
-                  return "Please enter a name";
+                  return "Por favor, ingresa un nombre";
                 }
                 return null;
               },
@@ -236,8 +236,8 @@ class _CreateRoutineSheetState extends State<CreateRoutineSheet> {
             TextFormField(
               controller: _descController,
               decoration: const InputDecoration(
-                labelText: "Description (Optional)",
-                hintText: "e.g., Alternate heavy sets with higher reps",
+                labelText: "Descripción (Opcional)",
+                hintText: "ej. Alternar series pesadas con altas repeticiones",
               ),
             ),
             const SizedBox(height: 16),
@@ -246,8 +246,8 @@ class _CreateRoutineSheetState extends State<CreateRoutineSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("SELECT EXERCISES", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: CyberTheme.cyberTeal)),
-                Text("${_selectedExerciseIds.length} Selected", style: const TextStyle(fontSize: 12, color: CyberTheme.textSecondary)),
+                const Text("SELECCIONAR EJERCICIOS", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: CyberTheme.cyberTeal)),
+                Text("${_selectedExerciseIds.length} Seleccionados", style: const TextStyle(fontSize: 12, color: CyberTheme.textSecondary)),
               ],
             ),
             const SizedBox(height: 8),
@@ -255,7 +255,7 @@ class _CreateRoutineSheetState extends State<CreateRoutineSheet> {
             // Search Bar
             TextField(
               decoration: const InputDecoration(
-                hintText: "Filter exercises...",
+                hintText: "Filtrar ejercicios...",
                 prefixIcon: Icon(Icons.filter_list, size: 18),
                 contentPadding: EdgeInsets.zero,
               ),
@@ -305,7 +305,7 @@ class _CreateRoutineSheetState extends State<CreateRoutineSheet> {
                 Expanded(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text("CANCEL"),
+                    child: const Text("CANCELAR"),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -315,7 +315,7 @@ class _CreateRoutineSheetState extends State<CreateRoutineSheet> {
                       if (_formKey.currentState!.validate()) {
                         if (_selectedExerciseIds.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Please select at least one exercise")),
+                            const SnackBar(content: Text("Por favor selecciona al menos un ejercicio")),
                           );
                           return;
                         }
@@ -328,7 +328,7 @@ class _CreateRoutineSheetState extends State<CreateRoutineSheet> {
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: CyberTheme.cyberTeal),
-                    child: const Text("SAVE TEMPLATE", style: TextStyle(color: CyberTheme.background, fontWeight: FontWeight.bold)),
+                    child: const Text("GUARDAR PLANTILLA", style: TextStyle(color: CyberTheme.background, fontWeight: FontWeight.bold)),
                   ),
                 )
               ],

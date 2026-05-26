@@ -21,11 +21,11 @@ class HistoryScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "WORKOUT HISTORY",
+                "HISTORIAL DE ENTRENAMIENTOS",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.0),
               ),
               Text(
-                "${history.length} Workouts",
+                "${history.length} Entrenamientos",
                 style: const TextStyle(color: CyberTheme.textSecondary, fontSize: 12),
               ),
             ],
@@ -41,7 +41,7 @@ class HistoryScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.history_toggle_off_rounded, size: 48, color: CyberTheme.textSecondary),
                   SizedBox(height: 12),
-                  Text("No completed workouts yet", style: TextStyle(color: CyberTheme.textSecondary)),
+                  Text("Aún no hay entrenamientos completados", style: TextStyle(color: CyberTheme.textSecondary)),
                 ],
               ),
             ),
@@ -78,7 +78,7 @@ class HistoryScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.delete_outline, color: CyberTheme.neonRose, size: 20),
                   SizedBox(width: 8),
-                  Text("Delete log", style: TextStyle(color: CyberTheme.neonRose)),
+                  Text("Eliminar registro", style: TextStyle(color: CyberTheme.neonRose)),
                 ],
               ),
             )
@@ -111,7 +111,7 @@ class HistoryScreen extends StatelessWidget {
                         children: [
                           Icon(Icons.show_chart_rounded, size: 16, color: CyberTheme.cyberTeal),
                           SizedBox(width: 4),
-                          Text("Progress", style: TextStyle(fontSize: 11, color: CyberTheme.cyberTeal, fontWeight: FontWeight.bold)),
+                          Text("Progreso", style: TextStyle(fontSize: 11, color: CyberTheme.cyberTeal, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -135,7 +135,7 @@ class HistoryScreen extends StatelessWidget {
                         border: Border.all(color: CyberTheme.borderTranslucent),
                       ),
                       child: Text(
-                        "Set ${setIdx + 1}: ${setLog.weight.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}${store.weightUnit} x ${setLog.reps}$rirStr",
+                        "Serie ${setIdx + 1}: ${setLog.weight.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')}${store.weightUnit} x ${setLog.reps}$rirStr",
                         style: const TextStyle(fontSize: 12, color: Colors.white70),
                       ),
                     );
@@ -163,19 +163,19 @@ class HistoryScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("DELETE WORKOUT LOG?"),
-        content: Text("Are you sure you want to delete '${session.name}' from your history? This cannot be undone."),
+        title: const Text("¿ELIMINAR REGISTRO DE ENTRENAMIENTO?"),
+        content: Text("¿Estás seguro de que quieres eliminar '${session.name}' de tu historial? Esto no se puede deshacer."),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("CANCEL"),
+            child: const Text("CANCELAR"),
           ),
           TextButton(
             onPressed: () {
               store.deleteWorkoutFromHistory(session.id);
               Navigator.pop(context);
             },
-            child: const Text("DELETE", style: TextStyle(color: CyberTheme.neonRose)),
+            child: const Text("ELIMINAR", style: TextStyle(color: CyberTheme.neonRose)),
           ),
         ],
       ),
@@ -194,7 +194,7 @@ class HistoryScreen extends StatelessWidget {
           side: const BorderSide(color: CyberTheme.borderTranslucent),
         ),
         title: Text(
-          "${exerciseName.toUpperCase()} 1RM PROGRESS",
+          "${exerciseName.toUpperCase()} PROGRESO 1RM",
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5),
         ),
         content: SizedBox(
@@ -205,7 +205,7 @@ class HistoryScreen extends StatelessWidget {
               VolumeLineChart(progressData: progress),
               const SizedBox(height: 12),
               const Text(
-                "Estimated One-Rep Max trends computed using the Epley Formula.",
+                "Tendencias de una repetición máxima estimadas usando la Fórmula de Epley.",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 10, color: CyberTheme.textSecondary),
               ),
@@ -215,7 +215,7 @@ class HistoryScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("CLOSE"),
+            child: const Text("CERRAR"),
           )
         ],
       ),

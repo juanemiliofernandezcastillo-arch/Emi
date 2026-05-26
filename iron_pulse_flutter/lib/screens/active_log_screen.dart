@@ -35,7 +35,7 @@ class ActiveLogScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               const Text(
-                "NO ACTIVE WORKOUT",
+                "SIN ENTRENAMIENTO ACTIVO",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
@@ -44,7 +44,7 @@ class ActiveLogScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                "Start an empty workout or select a template from the Routines tab to begin tracking.",
+                "Inicia un entrenamiento vacío o selecciona una plantilla en la pestaña de Rutinas para empezar.",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: CyberTheme.textSecondary, height: 1.4),
               ),
@@ -59,7 +59,7 @@ class ActiveLogScreen extends StatelessWidget {
                     gradient: CyberTheme.primaryGradient,
                   ),
                   child: const Text(
-                    "START QUICK WORKOUT",
+                    "INICIAR ENTRENAMIENTO RÁPIDO",
                     style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.0),
                   ),
                 ),
@@ -93,7 +93,7 @@ class ActiveLogScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_box_rounded, color: CyberTheme.cyberTeal),
-            tooltip: "Add Exercise",
+            tooltip: "Añadir Ejercicio",
             onPressed: () => _showAddExerciseSheet(context, store),
           ),
         ],
@@ -112,7 +112,7 @@ class ActiveLogScreen extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () => _confirmDiscardWorkout(context, store),
-                child: const Text("DISCARD", style: TextStyle(color: CyberTheme.neonRose)),
+                child: const Text("DESCARTAR", style: TextStyle(color: CyberTheme.neonRose)),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
@@ -122,7 +122,7 @@ class ActiveLogScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
                 child: const Text(
-                  "FINISH",
+                  "FINALIZAR",
                   style: TextStyle(color: CyberTheme.background, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -136,7 +136,7 @@ class ActiveLogScreen extends StatelessWidget {
               height: 200,
               alignment: Alignment.center,
               child: const Text(
-                "Tap '+' at the top to add your first exercise!",
+                "¡Toca '+' en la parte superior para añadir tu primer ejercicio!",
                 style: TextStyle(color: CyberTheme.textSecondary),
               ),
             ),
@@ -177,7 +177,7 @@ class ActiveLogScreen extends StatelessWidget {
                         children: [
                           Icon(Icons.delete_outline, color: CyberTheme.neonRose, size: 20),
                           SizedBox(width: 8),
-                          Text("Remove exercise", style: TextStyle(color: CyberTheme.neonRose)),
+                          Text("Eliminar ejercicio", style: TextStyle(color: CyberTheme.neonRose)),
                         ],
                       ),
                     ),
@@ -197,14 +197,14 @@ class ActiveLogScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 4.0),
               child: Row(
                 children: [
-                  SizedBox(width: 32, child: Text("SET", style: TextStyle(fontSize: 10, color: CyberTheme.textSecondary, fontWeight: FontWeight.bold))),
+                  SizedBox(width: 32, child: Text("SERIE", style: TextStyle(fontSize: 10, color: CyberTheme.textSecondary, fontWeight: FontWeight.bold))),
                   Expanded(flex: 3, child: Center(child: Text("KG", style: TextStyle(fontSize: 10, color: CyberTheme.textSecondary, fontWeight: FontWeight.bold)))),
                   SizedBox(width: 8),
                   Expanded(flex: 3, child: Center(child: Text("REPS", style: TextStyle(fontSize: 10, color: CyberTheme.textSecondary, fontWeight: FontWeight.bold)))),
                   SizedBox(width: 8),
                   Expanded(flex: 2, child: Center(child: Text("RIR", style: TextStyle(fontSize: 10, color: CyberTheme.textSecondary, fontWeight: FontWeight.bold)))),
                   SizedBox(width: 12),
-                  SizedBox(width: 40, child: Center(child: Text("DONE", style: TextStyle(fontSize: 10, color: CyberTheme.textSecondary, fontWeight: FontWeight.bold)))),
+                  SizedBox(width: 40, child: Center(child: Text("LISTO", style: TextStyle(fontSize: 10, color: CyberTheme.textSecondary, fontWeight: FontWeight.bold)))),
                 ],
               ),
             ),
@@ -236,7 +236,7 @@ class ActiveLogScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.add, size: 16, color: CyberTheme.cyberTeal),
                   SizedBox(width: 4),
-                  Text("ADD SET", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: CyberTheme.cyberTeal)),
+                  Text("AÑADIR SERIE", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: CyberTheme.cyberTeal)),
                 ],
               ),
             )
@@ -272,19 +272,19 @@ class ActiveLogScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("DISCARD WORKOUT?"),
-        content: const Text("Are you sure you want to discard this workout? All progress logged in this session will be lost."),
+        title: const Text("¿DESCARTAR ENTRENAMIENTO?"),
+        content: const Text("¿Estás seguro de que quieres descartar este entrenamiento? Todo el progreso registrado en esta sesión se perderá."),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("CANCEL"),
+            child: const Text("CANCELAR"),
           ),
           TextButton(
             onPressed: () {
               store.discardWorkout();
               Navigator.pop(context);
             },
-            child: const Text("DISCARD", style: TextStyle(color: CyberTheme.neonRose)),
+            child: const Text("DESCARTAR", style: TextStyle(color: CyberTheme.neonRose)),
           ),
         ],
       ),
@@ -520,17 +520,17 @@ class AddExerciseSelector extends StatefulWidget {
 
 class _AddExerciseSelectorState extends State<AddExerciseSelector> {
   String _searchQuery = "";
-  String _selectedMuscle = "All";
+  String _selectedMuscle = "Todos";
 
   @override
   Widget build(BuildContext context) {
     final list = widget.store.allExercises.where((e) {
       final matchesSearch = e.name.toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesMuscle = _selectedMuscle == "All" || e.muscleGroup == _selectedMuscle;
+      final matchesMuscle = _selectedMuscle == "Todos" || e.muscleGroup == _selectedMuscle;
       return matchesSearch && matchesMuscle;
     }).toList();
 
-    final muscles = ["All", ...muscleGroups];
+    final muscles = ["Todos", ...muscleGroups];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -547,7 +547,7 @@ class _AddExerciseSelectorState extends State<AddExerciseSelector> {
           ),
           const SizedBox(height: 16),
           const Text(
-            "ADD EXERCISE TO WORKOUT",
+            "AÑADIR EJERCICIO AL ENTRENAMIENTO",
             style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.0),
           ),
           const SizedBox(height: 16),
@@ -555,7 +555,7 @@ class _AddExerciseSelectorState extends State<AddExerciseSelector> {
           // Search box
           TextField(
             decoration: const InputDecoration(
-              hintText: "Search exercises...",
+              hintText: "Buscar ejercicios...",
               prefixIcon: Icon(Icons.search, color: CyberTheme.textSecondary),
             ),
             onChanged: (val) {

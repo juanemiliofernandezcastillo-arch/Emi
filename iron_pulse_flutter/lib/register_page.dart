@@ -62,13 +62,13 @@ class _RegisterPageState extends State<RegisterPage> {
   String _getStrengthLabel() {
     switch (_passwordScore) {
       case 1:
-        return "Weak";
+        return "Débil";
       case 2:
-        return "Fair";
+        return "Aceptable";
       case 3:
-        return "Good";
+        return "Buena";
       case 4:
-        return "Strong 💪";
+        return "Fuerte 💪";
       default:
         return "";
     }
@@ -147,7 +147,7 @@ class _RegisterPageState extends State<RegisterPage> {
       });
 
       final firstName = name.split(' ').first;
-      _showToast("Welcome aboard, $firstName! Please check your email or sign in. 🔥");
+      _showToast("¡Bienvenido a bordo, $firstName! Inicia sesión para continuar. 🔥");
 
       await Future.delayed(const Duration(milliseconds: 1200));
       if (!mounted) return;
@@ -167,12 +167,12 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() {
         _isLoading = false;
       });
-      _showToast("Registration failed. Please check your credentials.", isError: true);
+      _showToast("Error de registro. Revisa tus datos.", isError: true);
     }
   }
 
   Future<void> _handleSocialRegister(String provider) async {
-    _showToast("Connecting with $provider…", isInfo: true);
+    _showToast("Conectando con $provider…", isInfo: true);
     try {
       final providerEnum = provider.toLowerCase() == 'google'
           ? OAuthProvider.google
@@ -180,7 +180,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       await SupabaseAuthService().signInWithOAuth(providerEnum);
     } catch (e) {
-      _showToast("OAuth sign-up failed: $e", isError: true);
+      _showToast("Error de registro OAuth: $e", isError: true);
     }
   }
 
@@ -306,9 +306,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               height: 1.1,
                             ),
                             children: const [
-                              TextSpan(text: "Join the pulse,\n"),
+                              TextSpan(text: "Únete al pulso,\n"),
                               TextSpan(
-                                text: "Athlete.",
+                                text: "atleta.",
                                 style: TextStyle(color: AppTheme.primary),
                               ),
                             ],
@@ -316,7 +316,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Create your free account today.",
+                          "Crea tu cuenta gratis hoy.",
                           style: GoogleFonts.spaceGrotesk(
                             color: AppTheme.textMuted,
                             fontSize: 16,
@@ -327,13 +327,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         // Full Name
                         CustomTextField(
                           controller: _nameController,
-                          labelText: "Full Name",
+                          labelText: "Nombre Completo",
                           hintText: "John Carter",
                           keyboardType: TextInputType.name,
                           rightIcon: Icons.person_outline,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Please enter your full name.";
+                              return "Por favor ingresa tu nombre completo.";
                             }
                             return null;
                           },
@@ -343,16 +343,16 @@ class _RegisterPageState extends State<RegisterPage> {
                         // Email
                         CustomTextField(
                           controller: _emailController,
-                          labelText: "Email Address",
-                          hintText: "athlete@ironpulse.com",
+                          labelText: "Correo Electrónico",
+                          hintText: "atleta@ironpulse.com",
                           keyboardType: TextInputType.emailAddress,
                           rightIcon: Icons.mail_outline,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Please enter your email address.";
+                              return "Por favor ingresa tu correo electrónico.";
                             }
                             if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
-                              return "Please enter a valid email address.";
+                              return "Por favor ingresa un correo electrónico válido.";
                             }
                             return null;
                           },
@@ -365,16 +365,16 @@ class _RegisterPageState extends State<RegisterPage> {
                           children: [
                             CustomTextField(
                               controller: _passwordController,
-                              labelText: "Password",
-                              hintText: "Min. 8 characters",
+                              labelText: "Contraseña",
+                              hintText: "Mín. 8 caracteres",
                               isPassword: true,
                               onChanged: _checkPasswordStrength,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Please enter a password.";
+                                  return "Por favor ingresa una contraseña.";
                                 }
                                 if (value.length < 8) {
-                                  return "Password must be at least 8 characters.";
+                                  return "La contraseña debe tener al menos 8 caracteres.";
                                 }
                                 return null;
                               },
@@ -422,15 +422,15 @@ class _RegisterPageState extends State<RegisterPage> {
                         // Confirm Password
                         CustomTextField(
                           controller: _confirmPasswordController,
-                          labelText: "Confirm Password",
+                          labelText: "Confirmar Contraseña",
                           hintText: "••••••••",
                           isPassword: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Please confirm your password.";
+                              return "Por favor confirma tu contraseña.";
                             }
                             if (value != _passwordController.text) {
-                              return "Passwords do not match.";
+                              return "Las contraseñas no coinciden.";
                             }
                             return null;
                           },
@@ -439,7 +439,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         // Create Account button
                         PrimaryButton(
-                          text: "Create Account",
+                          text: "Crear Cuenta",
                           isLoading: _isLoading,
                           onPressed: _handleRegister,
                         ),
@@ -457,7 +457,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Text(
-                                "Or continue with",
+                                "O continúa con",
                                 style: GoogleFonts.spaceGrotesk(
                                   color: AppTheme.textMuted,
                                   fontSize: 12,
@@ -519,9 +519,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                   fontSize: 14,
                                 ),
                                 children: const [
-                                  TextSpan(text: "Already have an account?"),
+                                  TextSpan(text: "¿Ya tienes una cuenta?"),
                                   TextSpan(
-                                    text: " Sign In",
+                                    text: " Login",
                                     style: TextStyle(
                                       color: AppTheme.primary,
                                       fontWeight: FontWeight.bold,

@@ -69,7 +69,7 @@ class RestTimerWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      "RESTING",
+                      "DESCANSANDO",
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -125,7 +125,7 @@ class RestTimerWidget extends StatelessWidget {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: const Text(
-                      "SKIP",
+                      "SALTAR",
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                   ),

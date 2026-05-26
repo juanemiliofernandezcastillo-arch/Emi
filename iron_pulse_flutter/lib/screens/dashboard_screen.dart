@@ -42,7 +42,7 @@ class DashboardScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "PULSE DASHBOARD — HELLO, ${firstName.toUpperCase()}! 🔥",
+                  "PULSE DASHBOARD — ¡HOLA, ${firstName.toUpperCase()}! 🔥",
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -52,7 +52,7 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  "UNLEASH YOUR POWER",
+                  "DESATA TU PODER",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -76,7 +76,7 @@ class DashboardScreen extends StatelessWidget {
                     children: [
                       Icon(Icons.play_arrow_rounded, size: 20),
                       SizedBox(width: 4),
-                      Text("START EMPTY WORKOUT", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      Text("INICIAR ENTRENAMIENTO VACÍO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                     ],
                   ),
                 )
@@ -90,7 +90,7 @@ class DashboardScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildStatCard(
-                  title: "TOTAL WORKOUTS",
+                  title: "ENTRENAMIENTOS TOTALES",
                   value: "$totalWorkouts",
                   icon: Icons.fitness_center_rounded,
                   accentColor: CyberTheme.cyberTeal,
@@ -99,7 +99,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  title: "VOLUME LIFTED",
+                  title: "VOLUMEN LEVANTADO",
                   value: "$volumeDisplay ${store.weightUnit}",
                   icon: Icons.flash_on_rounded,
                   accentColor: CyberTheme.electricAmber,
@@ -121,12 +121,12 @@ class DashboardScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Volume Distribution",
+                    "Distribución de Volumen",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Total training load per muscle group",
+                    "Carga total de entrenamiento por grupo muscular",
                     style: TextStyle(color: CyberTheme.textSecondary, fontSize: 12),
                   ),
                   const SizedBox(height: 12),

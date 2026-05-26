@@ -49,11 +49,11 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
       if (_userBooking != null && _userBooking!.status != BookingStatus.cancelled) {
         // Cancelar reserva
         await BookingsService().cancelBooking(_userBooking!.id);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking Cancelled')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reserva Cancelada')));
       } else {
         // Reservar
         await BookingsService().reserveClass(_profile!.id, _schedule!);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Class Reserved successfully!')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('¡Clase reservada con éxito!')));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -75,8 +75,8 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
     if (_schedule == null) {
       return Scaffold(
         backgroundColor: AppTheme.background,
-        appBar: AppBar(title: const Text('Details')),
-        body: const Center(child: Text('Class not found', style: TextStyle(color: Colors.white))),
+        appBar: AppBar(title: const Text('Detalles')),
+        body: const Center(child: Text('Clase no encontrada', style: TextStyle(color: Colors.white))),
       );
     }
 
@@ -125,7 +125,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _schedule!.classModel?.name ?? 'Class',
+                    _schedule!.classModel?.name ?? 'Clase',
                     style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   const SizedBox(height: 16),
@@ -156,7 +156,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                       const Icon(Icons.person, color: AppTheme.primary, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        _schedule!.instructor?.name ?? 'No Instructor',
+                        _schedule!.instructor?.name ?? 'Sin Instructor',
                         style: const TextStyle(color: Colors.white70, fontSize: 16),
                       ),
                     ],
@@ -167,14 +167,14 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                       const Icon(Icons.group, color: AppTheme.primary, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        availableSpots > 0 ? "$availableSpots spots left" : "Class Full",
+                        availableSpots > 0 ? "$availableSpots cupos disponibles" : "Clase Llena",
                         style: TextStyle(color: availableSpots > 0 ? Colors.green : Colors.redAccent, fontSize: 16),
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   if (_schedule!.classModel?.description != null) ...[
-                    const Text("About", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                    const Text("Acerca de", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
                     const SizedBox(height: 8),
                     Text(
                       _schedule!.classModel!.description!,
@@ -205,8 +205,8 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                 ? const CircularProgressIndicator(color: Colors.white)
                 : Text(
                     isBooked
-                        ? "Cancel Booking"
-                        : (availableSpots > 0 ? "Reserve Spot" : "Join Waitlist"),
+                        ? "Cancelar Reserva"
+                        : (availableSpots > 0 ? "Reservar" : "Lista de Espera"),
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
           ),

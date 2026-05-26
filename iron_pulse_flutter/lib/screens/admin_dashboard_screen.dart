@@ -6,7 +6,7 @@ import '../services/bookings_service.dart';
 import '../services/supabase_auth_service.dart';
 import '../services/profile_service.dart';
 import 'admin_students_screen.dart';
-import 'admin_messages_screen.dart';
+import 'admin/manage_class_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -138,7 +138,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "WELCOME BACK",
+                        "BIENVENIDO",
                         style: TextStyle(
                           color: slate400,
                           fontSize: 10,
@@ -204,9 +204,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Expanded(
               child: _buildMainStatCard(
                 icon: Icons.calendar_today,
-                title: "Scheduled Classes",
+                title: "Clases Programadas",
                 value: _metrics['scheduled_classes'].toString(),
-                badgeText: "Today",
+                badgeText: "Hoy",
               ),
             ),
             const SizedBox(width: 16),
@@ -223,7 +223,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           children: [
             Expanded(
               child: _buildMiniStatCard(
-                title: "TOTAL STUDENTS",
+                title: "ESTUDIANTES TOTALES",
                 value: _metrics['total_students'].toString(),
                 trend: "+12%",
                 trendColor: accentGreen,
@@ -232,9 +232,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: _buildMiniStatCard(
-                title: "ACTIVE TYPES",
+                title: "TIPOS ACTIVOS",
                 value: _metrics['active_types'].toString(),
-                suffix: "types",
+                suffix: "tipos",
               ),
             ),
           ],
@@ -367,7 +367,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            "Occupancy Rate",
+            "Tasa de Ocupación",
             style: TextStyle(color: slate400, fontSize: 14, fontWeight: FontWeight.w500),
           ),
         ],
@@ -429,7 +429,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
-            "QUICK ACTIONS",
+            "ACCIONES RÁPIDAS",
             style: TextStyle(color: slate500, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
           ),
         ),
@@ -439,8 +439,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  // Placeholder for Create Class
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create Class coming soon!')));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageClassScreen())).then((_) => _loadData());
                 },
                 child: Container(
                   height: 56,
@@ -456,7 +455,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     children: [
                       const Icon(Icons.add_circle_outline, color: Colors.white, size: 20),
                       const SizedBox(width: 8),
-                      const Text("Create Class", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      const Text("Crear Clase", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -467,7 +466,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               child: GestureDetector(
                 onTap: () {
                   // Navigate to schedule/calendar or show a message
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Calendar coming soon!')));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('¡Calendario próximamente!')));
                 },
                 child: Container(
                   height: 56,
@@ -481,7 +480,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     children: [
                       Icon(Icons.calendar_month, color: slate400, size: 20),
                       const SizedBox(width: 8),
-                      const Text("Calendar", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      const Text("Calendario", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -502,7 +501,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
-              "HAPPENING NOW",
+              "EN CURSO AHORA",
               style: TextStyle(color: slate500, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
             ),
           ),
@@ -516,7 +515,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             child: const Center(
               child: Text(
-                "No live classes at the moment",
+                "No hay clases en vivo en este momento",
                 style: TextStyle(color: Colors.white54, fontSize: 14),
               ),
             ),
@@ -541,11 +540,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "HAPPENING NOW",
+                "EN CURSO AHORA",
                 style: TextStyle(color: slate500, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
               ),
               Text(
-                "View All",
+                "Ver Todas",
                 style: TextStyle(color: primary, fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ],
@@ -637,7 +636,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                classModel?.name ?? 'Class Session',
+                                classModel?.name ?? 'Sesión de Clase',
                                 style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.2),
                               ),
                               const SizedBox(height: 4),
@@ -714,7 +713,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminStudentsScreen()));
                           },
                           child: Text(
-                            "Manage Class",
+                            "Gestionar Clase",
                             style: TextStyle(color: primary, fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -764,17 +763,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildNavItem(Icons.dashboard, "Home", true, () {}),
-              _buildNavItem(Icons.fitness_center, "Classes", false, () {
-                // Calendar view or classes list
+              _buildNavItem(Icons.dashboard, "Inicio", true, () {}),
+              _buildNavItem(Icons.fitness_center, "Clases", false, () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageClassScreen())).then((_) => _loadData());
               }),
-              _buildNavItem(Icons.group, "Users", false, () {
+              _buildNavItem(Icons.group, "Usuarios", false, () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminStudentsScreen()));
               }),
-              _buildNavItem(Icons.settings, "Settings", false, () {
+              _buildNavItem(Icons.settings, "Ajustes", false, () {
                 // Config
               }),
-              _buildNavItem(Icons.logout, "Logout", false, () async {
+              _buildNavItem(Icons.logout, "Salir", false, () async {
                 await SupabaseAuthService().signOut();
               }),
             ],

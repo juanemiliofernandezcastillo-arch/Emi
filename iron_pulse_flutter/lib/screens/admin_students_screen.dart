@@ -32,7 +32,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(title: const Text('Students & Check-in')),
+      appBar: AppBar(title: const Text('Estudiantes y Check-in')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : ListView.builder(
@@ -45,9 +45,9 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                   margin: const EdgeInsets.only(bottom: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: ExpansionTile(
-                    title: Text(schedule.classModel?.name ?? 'Class', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    title: Text(schedule.classModel?.name ?? 'Clase', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                      "${DateFormat('E, MMM d - HH:mm').format(schedule.startTime)} • ${schedule.bookedCount}/${schedule.capacity} spots booked",
+                      "${DateFormat('E, d MMM - HH:mm').format(schedule.startTime)} • ${schedule.bookedCount}/${schedule.capacity} lugares reservados",
                       style: TextStyle(color: AppTheme.textMuted),
                     ),
                     children: [
@@ -97,7 +97,7 @@ class _StudentListForScheduleState extends State<_StudentListForSchedule> {
     if (_bookings.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text('No students booked for this class.', style: TextStyle(color: Colors.white54)),
+        child: Text('No hay estudiantes reservados para esta clase.', style: TextStyle(color: Colors.white54)),
       );
     }
 
@@ -117,8 +117,8 @@ class _StudentListForScheduleState extends State<_StudentListForSchedule> {
             backgroundImage: profile?.avatarUrl != null ? NetworkImage(profile!.avatarUrl!) : null,
             child: profile?.avatarUrl == null ? const Icon(Icons.person, color: AppTheme.primary) : null,
           ),
-          title: Text(profile?.fullName ?? 'Unknown User', style: TextStyle(color: isCancelled ? Colors.white38 : Colors.white)),
-          subtitle: Text(isCancelled ? 'Cancelled' : (isWaitlist ? 'Waitlist' : 'Confirmed'), 
+          title: Text(profile?.fullName ?? 'Usuario Desconocido', style: TextStyle(color: isCancelled ? Colors.white38 : Colors.white)),
+          subtitle: Text(isCancelled ? 'Cancelado' : (isWaitlist ? 'Lista de Espera' : 'Confirmado'), 
             style: TextStyle(color: isCancelled ? Colors.redAccent : (isWaitlist ? Colors.amber : Colors.green))
           ),
           trailing: isCancelled ? null : Checkbox(

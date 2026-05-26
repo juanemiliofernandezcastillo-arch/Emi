@@ -17,6 +17,16 @@ class _AdminMessagesScreenState extends State<AdminMessagesScreen> {
   String? _selectedCategory;
   final List<String> _categories = ['All', 'Waitlist', 'Payment', 'General'];
 
+  String _getCategoryLabel(String cat) {
+    switch (cat) {
+      case 'All': return 'Todos';
+      case 'Waitlist': return 'Lista de Espera';
+      case 'Payment': return 'Pago';
+      case 'General': return 'General';
+      default: return cat;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -34,7 +44,7 @@ class _AdminMessagesScreenState extends State<AdminMessagesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(title: const Text('Communications')),
+      appBar: AppBar(title: const Text('Comunicaciones')),
       body: Column(
         children: [
           Container(
@@ -47,7 +57,7 @@ class _AdminMessagesScreenState extends State<AdminMessagesScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ChoiceChip(
-                      label: Text(cat),
+                      label: Text(_getCategoryLabel(cat)),
                       selected: isSelected,
                       selectedColor: AppTheme.primary.withOpacity(0.2),
                       backgroundColor: AppTheme.surface,
@@ -66,7 +76,7 @@ class _AdminMessagesScreenState extends State<AdminMessagesScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
                 : _messages.isEmpty
-                    ? const Center(child: Text('No messages found', style: TextStyle(color: Colors.white54)))
+                    ? const Center(child: Text('No se encontraron mensajes', style: TextStyle(color: Colors.white54)))
                     : ListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: _messages.length,
@@ -81,7 +91,7 @@ class _AdminMessagesScreenState extends State<AdminMessagesScreen> {
                             ),
                             child: ListTile(
                               contentPadding: const EdgeInsets.all(16),
-                              title: Text(msg.subject ?? 'No Subject', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              title: Text(msg.subject ?? 'Sin Asunto', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
