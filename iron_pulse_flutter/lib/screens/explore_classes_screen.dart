@@ -7,6 +7,7 @@ import '../services/classes_service.dart';
 import 'class_detail_screen.dart';
 import 'my_reservations_screen.dart';
 import '../home_page.dart';
+import 'client_profile_screen.dart';
 
 class ExploreClassesScreen extends StatefulWidget {
   const ExploreClassesScreen({super.key});
@@ -466,7 +467,16 @@ class _ExploreClassesScreenState extends State<ExploreClassesScreen> {
                       ),
                     );
                   }),
-                  _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false, onTap: () {}),
+                  _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false, onTap: () {
+                     Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) => const ClientProfileScreen(),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),

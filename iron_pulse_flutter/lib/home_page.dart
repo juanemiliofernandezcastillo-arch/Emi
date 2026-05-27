@@ -8,6 +8,7 @@ import '../services/supabase_auth_service.dart';
 import 'screens/class_detail_screen.dart';
 import 'screens/my_reservations_screen.dart';
 import 'screens/explore_classes_screen.dart';
+import 'screens/client_profile_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -744,7 +745,16 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-                _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false, onTap: () {}),
+                _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false, onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) => const ClientProfileScreen(),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ),
+                  );
+                }),
               ],
             ),
           ),

@@ -5,7 +5,7 @@ import '../models.dart';
 import '../services/bookings_service.dart';
 import '../services/supabase_auth_service.dart';
 import '../services/profile_service.dart';
-import 'admin_students_screen.dart';
+import 'student_management_screen.dart';
 import 'admin/manage_class_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -711,7 +711,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminStudentsScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentManagementScreen()));
                           },
                           child: Text(
                             "Gestionar Clase",
@@ -769,7 +769,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageClassScreen())).then((_) => _loadData());
               }),
               _buildNavItem(Icons.group, "Usuarios", false, () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminStudentsScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentManagementScreen()));
               }),
               _buildNavItem(Icons.settings, "Ajustes", false, () {
                 // Config

@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models.dart';
 
 class ProfileService {
@@ -27,5 +28,34 @@ class ProfileService {
         .single();
         
     return Profile.fromJson(response);
+  }
+
+  Future<String?> uploadAvatar(String userId, XFile imageFile) async {
+    try {
+      final fileExt = imageFile.name.split('.').last;
+      final fileName = '$userId-${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      
+      // We read as bytes to support Flutter web as well (since the user is testing on chrome)
+      final bytes = await imageFile.readAsBytes();
+      
+      await _client.storage.from('avatars').uploadBinary(
+        fileName, 
+        bytes,
+        fileOptions: FileOptions(contentType: 'image/$fileExt'),
+      );
+      
+      final imageUrl = _client.storage.from('avatars').getPublicUrl(fileName);
+      
+      // Update the profile
+      await _client
+          .from('profiles')
+          .update({'avatar_url': imageUrl})
+          .eq('id', userId);
+          
+      return imageUrl;
+    } catch (e) {
+      print('Error uploading avatar: $e');
+      return null;
+    }
   }
 }

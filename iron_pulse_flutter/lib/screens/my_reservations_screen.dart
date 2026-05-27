@@ -8,6 +8,7 @@ import '../services/bookings_service.dart';
 import '../services/profile_service.dart';
 import '../home_page.dart';
 import 'explore_classes_screen.dart';
+import 'client_profile_screen.dart';
 
 class MyReservationsScreen extends StatefulWidget {
   const MyReservationsScreen({super.key});
@@ -704,7 +705,16 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                     );
                   }),
                   _buildNavItem(icon: Icons.calendar_today, label: "Reservas", isSelected: true, onTap: () {}),
-                  _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false, onTap: () {}),
+                  _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false, onTap: () {
+                     Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) => const ClientProfileScreen(),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),

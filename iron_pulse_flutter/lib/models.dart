@@ -270,6 +270,8 @@ class Profile {
   final String id;
   final String? fullName;
   final String? avatarUrl;
+  final String? phone;
+  final String? dateOfBirth;
   final UserRole role;
   final DateTime updatedAt;
 
@@ -277,6 +279,8 @@ class Profile {
     required this.id,
     this.fullName,
     this.avatarUrl,
+    this.phone,
+    this.dateOfBirth,
     this.role = UserRole.client,
     required this.updatedAt,
   });
@@ -285,6 +289,8 @@ class Profile {
     String? id,
     String? fullName,
     String? avatarUrl,
+    String? phone,
+    String? dateOfBirth,
     UserRole? role,
     DateTime? updatedAt,
   }) {
@@ -292,6 +298,8 @@ class Profile {
       id: id ?? this.id,
       fullName: fullName ?? this.fullName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      phone: phone ?? this.phone,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       role: role ?? this.role,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -302,6 +310,8 @@ class Profile {
       id: json['id'] as String,
       fullName: json['full_name'] as String?,
       avatarUrl: json['avatar_url'] as String?,
+      phone: json['phone_number'] as String?,
+      dateOfBirth: json['date_of_birth'] as String?,
       role: _parseUserRole(json['role'] as String?),
       updatedAt: json['updated_at'] != null 
           ? DateTime.parse(json['updated_at'].toString()) 
@@ -314,6 +324,8 @@ class Profile {
       'id': id,
       'full_name': fullName,
       'avatar_url': avatarUrl,
+      'phone_number': phone,
+      'date_of_birth': dateOfBirth,
       'role': _roleToString(role),
       'updated_at': updatedAt.toIso8601String(),
     };
