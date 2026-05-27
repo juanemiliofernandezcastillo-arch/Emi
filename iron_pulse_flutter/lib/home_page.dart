@@ -6,6 +6,9 @@ import '../services/classes_service.dart';
 import '../services/profile_service.dart';
 import '../services/supabase_auth_service.dart';
 import 'screens/class_detail_screen.dart';
+import 'screens/my_reservations_screen.dart';
+import 'screens/explore_classes_screen.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -172,19 +175,31 @@ class _HomePageState extends State<HomePage> {
                   letterSpacing: -0.5,
                 ),
               ),
-              Row(
-                children: [
-                  Text(
-                    "Ver Todas",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: primary,
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) => const ExploreClassesScreen(),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
                     ),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(Icons.arrow_forward, color: primary, size: 16),
-                ],
+                  );
+                },
+                child: Row(
+                  children: [
+                    Text(
+                      "Ver Todas",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: primary,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(Icons.arrow_forward, color: primary, size: 16),
+                  ],
+                ),
               ),
             ],
           ),
@@ -698,10 +713,38 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(icon: Icons.home_filled, label: "Inicio", isSelected: true),
-                _buildNavItem(icon: Icons.calendar_today, label: "Horario", isSelected: false),
-                _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false),
-                _buildNavItem(icon: Icons.settings_outlined, label: "Ajustes", isSelected: false),
+                _buildNavItem(icon: Icons.home_filled, label: "Inicio", isSelected: true, onTap: () {}),
+                _buildNavItem(
+                  icon: Icons.search,
+                  label: "Explorar",
+                  isSelected: false,
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) => const ExploreClassesScreen(),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  },
+                ),
+                _buildNavItem(
+                  icon: Icons.calendar_today,
+                  label: "Reservas",
+                  isSelected: false,
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) => const MyReservationsScreen(),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  },
+                ),
+                _buildNavItem(icon: Icons.person_outline, label: "Perfil", isSelected: false, onTap: () {}),
               ],
             ),
           ),
@@ -710,21 +753,23 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildNavItem({required IconData icon, required String label, required bool isSelected}) {
+  Widget _buildNavItem({required IconData icon, required String label, required bool isSelected, required VoidCallback onTap}) {
     final color = isSelected ? primary : slate400;
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        onTap: onTap,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(4),
+              padding: isSelected ? const EdgeInsets.symmetric(horizontal: 24, vertical: 4) : const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: isSelected ? primary.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: isSelected ? [BoxShadow(color: primary.withOpacity(0.2), blurRadius: 10)] : [],
               ),
-              child: Icon(icon, color: color, size: 26),
+              child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 4),
             Text(

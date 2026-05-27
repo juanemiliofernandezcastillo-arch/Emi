@@ -20,6 +20,28 @@ class BookingsService {
     }
   }
 
+  Future<List<Booking>> getUserBookings(String userId) async {
+    try {
+      final response = await _client
+          .from('bookings')
+          .select('''
+            *,
+            class_schedules (
+              *,
+              classes (*),
+              instructors (*)
+            )
+          ''')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      return (response as List).map((e) => Booking.fromJson(e)).toList();
+    } catch (e) {
+      print('Error getting user bookings: $e');
+      return [];
+    }
+  }
+
   Future<Booking?> reserveClass(String userId, ClassSchedule schedule) async {
     try {
       // Verificar si ya tiene reserva
@@ -172,17 +194,76 @@ class BookingsService {
     }
   }
 
+  Future<int> getTotalScheduledClasses() async {
+    try {
+      final response = await _client
+          .from('class_schedules')
+          .select('id')
+          .count(CountOption.exact);
+      return response.count ?? 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Future<int> getTodayScheduledClassesCount() async {
+    try {
+      final nowLocal = DateTime.now();
+      final startOfDayLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
+      final endOfDayLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day, 23, 59, 59, 999);
+      
+      final nowStr = nowLocal.toUtc().toIso8601String();
+      final startOfDayStr = startOfDayLocal.toUtc().toIso8601String();
+      final endOfDayStr = endOfDayLocal.toUtc().toIso8601String();
+
+      print('DEBUG-VIGENTES: now local = $nowLocal');
+      print('DEBUG-VIGENTES: nowStr = $nowStr');
+      print('DEBUG-VIGENTES: startOfDayStr = $startOfDayStr');
+      print('DEBUG-VIGENTES: endOfDayStr = $endOfDayStr');
+
+      final response = await _client
+          .from('class_schedules')
+          .select('id, start_time, end_time')
+          .gte('start_time', startOfDayStr)
+          .lte('start_time', endOfDayStr)
+          .gte('end_time', nowStr);
+
+      final list = response as List;
+      final schedulesData = list.map((e) => 'start: ${e['start_time']}, end: ${e['end_time']}').toList();
+      print('DEBUG-VIGENTES: clases encontradas = $schedulesData');
+      print('DEBUG-VIGENTES: cantidad final = ${list.length}');
+
+      return list.length;
+    } catch (e) {
+      print('Error en getTodayScheduledClassesCount: $e');
+      return 0;
+    }
+  }
+
   Future<Map<String, dynamic>> getAdminDashboardMetrics() async {
     try {
-      final todayStart = DateTime.now().copyWith(hour: 0, minute: 0, second: 0).toIso8601String();
-      final todayEnd = DateTime.now().copyWith(hour: 23, minute: 59, second: 59).toIso8601String();
+      final nowLocal = DateTime.now();
+      final startOfDayLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
+      final endOfDayLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day, 23, 59, 59, 999);
+      
+      final nowStr = nowLocal.toUtc().toIso8601String();
+      final startOfDayStr = startOfDayLocal.toUtc().toIso8601String();
+      final endOfDayStr = endOfDayLocal.toUtc().toIso8601String();
 
-      // 1. Scheduled Classes Today
+      // 1. Get Totals using the specific methods
+      final int totalScheduledClasses = await getTotalScheduledClasses();
+      print('DEBUG: totalScheduledClasses = $totalScheduledClasses');
+      final int scheduledClassesToday = await getTodayScheduledClassesCount();
+      print('DEBUG: vigentesClassesToday = $scheduledClassesToday');
+
+      // 2. Scheduled Classes Today (get data for occupancy calculation)
+      // Modificado para usar solo las VIGENTES de hoy y reflejar la Tasa de Ocupación real
       final schedulesResponse = await _client
           .from('class_schedules')
           .select('id, capacity, start_time, end_time')
-          .gte('start_time', todayStart)
-          .lte('start_time', todayEnd);
+          .gte('start_time', startOfDayStr)
+          .lte('start_time', endOfDayStr)
+          .gte('end_time', nowStr);
 
       int totalCapacity = 0;
       List<String> scheduleIds = [];
@@ -191,7 +272,6 @@ class BookingsService {
         scheduleIds.add(s['id'] as String);
       }
 
-      int scheduledClasses = scheduleIds.length;
       double occupancyRate = 0.0;
 
       if (scheduleIds.isNotEmpty) {
@@ -221,22 +301,21 @@ class BookingsService {
       int activeTypes = categoriesResponse.count ?? 0;
 
       // 4. Happening Now or Next Upcoming
-      final nowStr = DateTime.now().toIso8601String();
-      // Try to find one happening right now, if not, the next upcoming one today
+      final nowStrSingle = DateTime.now().toUtc().toIso8601String();
+      // Try to find one happening right now
       var liveClassResponse = await _client
           .from('class_schedules')
           .select('*, classes(*), instructors(*)')
-          .lte('start_time', nowStr)
-          .gte('end_time', nowStr)
+          .lte('start_time', nowStrSingle)
+          .gte('end_time', nowStrSingle)
           .maybeSingle();
 
       if (liveClassResponse == null) {
-        // Find next upcoming
+        // Find next upcoming globally (no lte todayEnd so we catch 2026 dates)
         liveClassResponse = await _client
             .from('class_schedules')
             .select('*, classes(*), instructors(*)')
-            .gte('start_time', nowStr)
-            .lte('start_time', todayEnd)
+            .gte('start_time', nowStrSingle)
             .order('start_time', ascending: true)
             .limit(1)
             .maybeSingle();
@@ -257,10 +336,10 @@ class BookingsService {
       }
 
       return {
-        'scheduled_classes': scheduledClasses,
+        'scheduled_classes_total': totalScheduledClasses,
+        'scheduled_classes_today': scheduledClassesToday,
         'occupancy_rate': occupancyRate,
         'total_students': totalStudents,
-        'active_types': activeTypes,
         'happening_now_class': happeningNowClass,
         'happening_now_booked': happeningNowBooked,
       };
@@ -268,10 +347,10 @@ class BookingsService {
     } catch (e) {
       print('Error getting admin dashboard metrics: $e');
       return {
-        'scheduled_classes': 0,
+        'scheduled_classes_total': 0,
+        'scheduled_classes_today': 0,
         'occupancy_rate': 0.0,
         'total_students': 0,
-        'active_types': 0,
         'happening_now_class': null,
         'happening_now_booked': 0,
       };

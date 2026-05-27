@@ -28,10 +28,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final Color slate800 = const Color(0xFF1E293B);
 
   Map<String, dynamic> _metrics = {
-    'scheduled_classes': 0,
+    'scheduled_classes_total': 0,
+    'scheduled_classes_today': 0,
     'occupancy_rate': 0.0,
     'total_students': 0,
-    'active_types': 0,
     'happening_now_class': null,
     'happening_now_booked': 0,
   };
@@ -48,6 +48,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     setState(() => _isLoading = true);
     _profile = await ProfileService().getCurrentProfile();
     _metrics = await BookingsService().getAdminDashboardMetrics();
+    print('AdminDashboardPage received metrics: $_metrics');
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -203,17 +204,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           children: [
             Expanded(
               child: _buildMainStatCard(
-                icon: Icons.calendar_today,
-                title: "Clases Programadas",
-                value: _metrics['scheduled_classes'].toString(),
-                badgeText: "Hoy",
+                icon: Icons.calendar_month,
+                title: "Total Programadas",
+                value: _metrics['scheduled_classes_total'].toString(),
+                badgeText: "General",
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: _buildOccupancyCard(
                 value: (_metrics['occupancy_rate'] as double).toStringAsFixed(0),
-                trend: "5%",
+                trend: "Hoy",
               ),
             ),
           ],
@@ -223,18 +224,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           children: [
             Expanded(
               child: _buildMiniStatCard(
-                title: "ESTUDIANTES TOTALES",
-                value: _metrics['total_students'].toString(),
-                trend: "+12%",
-                trendColor: accentGreen,
+                title: "VIGENTES HOY",
+                value: _metrics['scheduled_classes_today'].toString(),
+                suffix: "sesiones",
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: _buildMiniStatCard(
-                title: "TIPOS ACTIVOS",
-                value: _metrics['active_types'].toString(),
-                suffix: "tipos",
+                title: "ESTUDIANTES TOTALES",
+                value: _metrics['total_students'].toString(),
+                trend: "+12%",
+                trendColor: accentGreen,
               ),
             ),
           ],
