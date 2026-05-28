@@ -9,6 +9,7 @@ import 'screens/class_detail_screen.dart';
 import 'screens/my_reservations_screen.dart';
 import 'screens/explore_classes_screen.dart';
 import 'screens/client_profile_screen.dart';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -150,6 +151,12 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
               await SupabaseAuthService().signOut();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,
+                );
+              }
             },
           ),
         ],
@@ -550,7 +557,7 @@ class _HomePageState extends State<HomePage> {
                       badgeBgColor: schedule.availableSpots > 0 
                           ? const Color(0xFF10B981).withOpacity(0.2) 
                           : Colors.amber.withOpacity(0.2),
-                      instructor: schedule.instructor?.name,
+                      instructor: schedule.instructor?.fullName,
                       duration: "${schedule.classModel?.durationMinutes ?? 60}m",
                       location: schedule.locationName,
                       isPast: isPast,

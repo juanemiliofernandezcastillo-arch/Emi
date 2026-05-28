@@ -7,6 +7,7 @@ import '../models.dart';
 import '../services/classes_service.dart';
 import '../services/bookings_service.dart';
 import '../services/profile_service.dart';
+import 'instructor_profile_screen.dart';
 
 class ClassDetailScreen extends StatefulWidget {
   final String scheduleId;
@@ -291,7 +292,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                                   ),
                                 ),
                                 Text(
-                                  _schedule!.instructor?.name ?? 'No asignado',
+                                  _schedule!.instructor?.fullName ?? 'No asignado',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -302,18 +303,40 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                             ),
                           ],
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primary.withOpacity(0.1),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              if (_schedule!.instructor != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InstructorProfileScreen(
+                                      profile: _schedule!.instructor!,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('No hay instructor asignado')),
+                                );
+                              }
+                            },
                             borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            "View Profile",
-                            style: TextStyle(
-                              color: AppTheme.primary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                "View Profile",
+                                style: TextStyle(
+                                  color: AppTheme.primary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ),

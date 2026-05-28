@@ -621,7 +621,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                             Icon(Icons.person, color: textMuted, size: 16),
                             const SizedBox(width: 8),
                             Text("Instructor: ", style: TextStyle(color: textMuted, fontSize: 14)),
-                            Text(instructor?.name ?? 'No asignado', style: const TextStyle(color: Colors.white, fontSize: 14)),
+                            Text(instructor?.fullName ?? "No asignado", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         const SizedBox(height: 8),

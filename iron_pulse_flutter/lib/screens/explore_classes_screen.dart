@@ -258,6 +258,7 @@ class _ExploreClassesScreenState extends State<ExploreClassesScreen> {
     final classData = schedule.classModel;
     final instructor = schedule.instructor;
     
+    final instructorName = instructor?.fullName ?? 'No asignado';
     final startTime = DateFormat('HH:mm').format(schedule.startTime.toLocal());
     final duration = classData?.durationMinutes ?? 0;
     
@@ -340,7 +341,7 @@ class _ExploreClassesScreenState extends State<ExploreClassesScreen> {
                                 children: [
                                   Icon(Icons.person, color: textMuted, size: 14),
                                   const SizedBox(width: 4),
-                                  Text("with ${instructor?.name ?? ''}", style: TextStyle(color: textMuted, fontSize: 12, fontWeight: FontWeight.w500)),
+                                  Text("with ${instructor?.fullName ?? ''}", style: TextStyle(color: textMuted, fontSize: 12, fontWeight: FontWeight.w500)),
                                 ],
                               ),
                             ],

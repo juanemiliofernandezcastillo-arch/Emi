@@ -10,6 +10,7 @@ import '../home_page.dart';
 import 'explore_classes_screen.dart';
 import 'my_reservations_screen.dart';
 import 'edit_profile_screen.dart';
+import '../login_page.dart';
 
 class ClientProfileScreen extends StatefulWidget {
   const ClientProfileScreen({super.key});
@@ -367,6 +368,12 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
                                     GestureDetector(
                                       onTap: () async {
                                         await SupabaseAuthService().signOut();
+                                        if (context.mounted) {
+                                          Navigator.of(context).pushAndRemoveUntil(
+                                            MaterialPageRoute(builder: (_) => const LoginPage()),
+                                            (route) => false,
+                                          );
+                                        }
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.all(16),

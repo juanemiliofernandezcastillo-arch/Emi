@@ -24,7 +24,7 @@ class ClassesService {
       var query = _client.from('class_schedules').select('''
         *,
         classes!inner(*),
-        instructors(*)
+        profiles(*)
       ''').gte('start_time', DateTime.now().toIso8601String());
       
       if (categoryId != null && categoryId.isNotEmpty) {
@@ -54,12 +54,41 @@ class ClassesService {
     }
   }
   
+  Future<List<ClassSchedule>> getInstructorSchedules(String instructorId) async {
+    try {
+      var query = _client.from('class_schedules').select('''
+        *,
+        classes!inner(*),
+        profiles(*)
+      ''').eq('instructor_id', instructorId).gte('start_time', DateTime.now().toIso8601String()).order('start_time', ascending: true);
+      
+      final response = await query;
+      
+      List<ClassSchedule> schedules = [];
+      for (var row in response as List) {
+        final countResponse = await _client
+            .from('bookings')
+            .select('id')
+            .eq('schedule_id', row['id'])
+            .eq('status', 'confirmed')
+            .count(CountOption.exact);
+            
+        row['booked_count'] = countResponse.count ?? 0;
+        schedules.add(ClassSchedule.fromJson(row));
+      }
+      return schedules;
+    } catch (e) {
+      print('Error getting instructor schedules: $e');
+      return [];
+    }
+  }
+  
   Future<ClassSchedule?> getScheduleDetails(String scheduleId) async {
     try {
       final response = await _client.from('class_schedules').select('''
         *,
         classes(*),
-        instructors(*)
+        profiles(*)
       ''').eq('id', scheduleId).maybeSingle();
       
       if (response == null) return null;
@@ -79,13 +108,32 @@ class ClassesService {
     }
   }
 
-  Future<List<Instructor>> getInstructors() async {
+  Future<List<Profile>> getInstructors() async {
     try {
-      final response = await _client.from('instructors').select();
-      return (response as List).map((e) => Instructor.fromJson(e)).toList();
+      final response = await _client.from('profiles').select().eq('role', 'instructor');
+      return (response as List).map((e) => Profile.fromJson(e)).toList();
     } catch (e) {
       print('Error getting instructors: $e');
       return [];
+    }
+  }
+
+  Future<Instructor?> getInstructorDetailsByName(String name) async {
+    try {
+      final response = await _client.from('instructors').select().ilike('name', '%$name%').maybeSingle();
+      if (response != null) {
+        return Instructor.fromJson(response);
+      }
+      
+      // Fallback: get any instructor to show the UI
+      final fallback = await _client.from('instructors').select().limit(1).maybeSingle();
+      if (fallback != null) {
+        return Instructor.fromJson(fallback);
+      }
+      return null;
+    } catch (e) {
+      print('Error getting instructor details: $e');
+      return null;
     }
   }
 

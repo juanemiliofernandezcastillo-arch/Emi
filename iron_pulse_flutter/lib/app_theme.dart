@@ -8,6 +8,7 @@ class AppTheme {
   static const Color surface = Color(0xFF1A1D21);
   static const Color textMuted = Color(0xFF7A8490);
   static const Color textPrimary = Color(0xFFFFFFFF);
+  static Color borderTranslucent = Colors.white.withOpacity(0.05);
 
   // Gradient definitions for premium look
   static const LinearGradient primaryGradient = LinearGradient(

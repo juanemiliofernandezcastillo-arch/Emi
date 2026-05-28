@@ -37,7 +37,7 @@ class _StudentManagementScreenState extends State<StudentManagementScreen> {
       // Fetch upcoming schedule
       final response = await Supabase.instance.client
           .from('class_schedules')
-          .select('*, classes(*), instructors(*)')
+          .select('*, classes(*), profiles(*)')
           .gte('start_time', nowStr)
           .order('start_time', ascending: true)
           .limit(1)
@@ -175,8 +175,8 @@ class _StudentManagementScreenState extends State<StudentManagementScreen> {
             text: TextSpan(
               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, height: 1.2),
               children: [
-                const TextSpan(text: "Gestión de\n"),
-                TextSpan(text: "Estudiantes", style: TextStyle(color: primaryColor)),
+                const TextSpan(text: "Asistencia de\n"),
+                TextSpan(text: "la Clase", style: TextStyle(color: primaryColor)),
               ],
             ),
           ),

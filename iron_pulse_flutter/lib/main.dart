@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme.dart';
 import 'app_theme.dart';
@@ -17,9 +18,11 @@ import 'services/profile_service.dart';
 import 'models.dart';
 import 'screens/admin_dashboard_screen.dart';
 import 'home_page.dart';
+import 'screens/instructor/instructor_home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es_ES', null);
   
   await Supabase.initialize(
     url: 'https://vhptzwqlsblzwcjxynzd.supabase.co',
@@ -75,6 +78,8 @@ class AuthWrapper extends StatelessWidget {
               final role = profileSnapshot.data?.role ?? UserRole.client;
               if (role == UserRole.admin) {
                 return const AdminDashboardScreen();
+              } else if (role == UserRole.instructor) {
+                return const InstructorHomePage();
               } else {
                 return const HomePage();
               }
@@ -309,8 +314,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                   onPressed: () async {
                     await SupabaseAuthService().signOut();
                     if (context.mounted) {
-                      Navigator.pop(context);
-                      // Navegación handled automatically by StreamBuilder in IronPulseApp
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                        (route) => false,
+                      );
                     }
                   },
                   child: const Text("CERRAR SESIÓN", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),

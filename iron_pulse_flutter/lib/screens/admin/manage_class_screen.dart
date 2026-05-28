@@ -6,7 +6,8 @@ import '../../../models.dart';
 import '../../../services/classes_service.dart';
 
 class ManageClassScreen extends StatefulWidget {
-  const ManageClassScreen({super.key});
+  final int initialIndex;
+  const ManageClassScreen({super.key, this.initialIndex = 0});
 
   @override
   State<ManageClassScreen> createState() => _ManageClassScreenState();
@@ -26,14 +27,14 @@ class _ManageClassScreenState extends State<ManageClassScreen> with SingleTicker
   List<ClassModel> _classes = [];
   List<ClassSchedule> _schedules = [];
   List<Category> _categories = [];
-  List<Instructor> _instructors = [];
+  List<Profile> _instructors = [];
 
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: widget.initialIndex);
     _loadData();
   }
 
@@ -50,8 +51,9 @@ class _ManageClassScreenState extends State<ManageClassScreen> with SingleTicker
       setState(() {
         _classes = futures[0] as List<ClassModel>;
         _schedules = futures[1] as List<ClassSchedule>;
+        _schedules.sort((a, b) => a.startTime.compareTo(b.startTime));
         _categories = futures[2] as List<Category>;
-        _instructors = futures[3] as List<Instructor>;
+        _instructors = futures[3] as List<Profile>;
       });
     } catch (e) {
       if (mounted) {
@@ -161,7 +163,7 @@ class _ManageClassScreenState extends State<ManageClassScreen> with SingleTicker
                   itemCount: _schedules.length,
                   itemBuilder: (context, index) {
                     final sched = _schedules[index];
-                    final DateFormat formatter = DateFormat('dd MMM yyyy, h:mm a');
+                    final DateFormat formatter = DateFormat("d 'de' MMMM yyyy, HH:mm", "es_ES");
                     return Card(
                       color: surfaceDark,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -244,6 +246,7 @@ class _ManageClassScreenState extends State<ManageClassScreen> with SingleTicker
       builder: (context) => _ClassForm(
         initialData: cls,
         categories: _categories,
+        instructors: _instructors,
         classesService: _classesService,
         onSaved: () => _loadData(),
       ),
@@ -273,10 +276,11 @@ class _ManageClassScreenState extends State<ManageClassScreen> with SingleTicker
 class _ClassForm extends StatefulWidget {
   final ClassModel? initialData;
   final List<Category> categories;
+  final List<Profile> instructors;
   final ClassesService classesService;
   final VoidCallback onSaved;
 
-  const _ClassForm({this.initialData, required this.categories, required this.classesService, required this.onSaved});
+  const _ClassForm({this.initialData, required this.categories, required this.instructors, required this.classesService, required this.onSaved});
 
   @override
   State<_ClassForm> createState() => _ClassFormState();
@@ -294,6 +298,14 @@ class _ClassFormState extends State<_ClassForm> {
   String? _existingImageUrl;
   bool _isSaving = false;
 
+  // Campos para programar (solo en creación)
+  Profile? _selectedInstructor;
+  late TextEditingController _capacityCtrl;
+  late TextEditingController _locationCtrl;
+  DateTime _startTime = DateTime.now().add(const Duration(days: 1));
+  DateTime _endTime = DateTime.now().add(const Duration(days: 1, hours: 1));
+  bool _isLive = false;
+
   @override
   void initState() {
     super.initState();
@@ -308,6 +320,38 @@ class _ClassFormState extends State<_ClassForm> {
         _selectedCategory = widget.categories.firstWhere((c) => c.id == widget.initialData!.categoryId);
       } catch (_) {}
       _selectedIntensity = widget.initialData!.intensity;
+    }
+    
+    _capacityCtrl = TextEditingController(text: '20');
+    _locationCtrl = TextEditingController(text: '');
+  }
+
+  Future<void> _pickDateTime(bool isStart) async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: isStart ? _startTime : _endTime,
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date != null) {
+      if (!mounted) return;
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(isStart ? _startTime : _endTime),
+      );
+      if (time != null) {
+        setState(() {
+          final newDt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+          if (isStart) {
+            _startTime = newDt;
+            if (_endTime.isBefore(_startTime)) {
+              _endTime = _startTime.add(const Duration(hours: 1));
+            }
+          } else {
+            _endTime = newDt;
+          }
+        });
+      }
     }
   }
 
@@ -343,7 +387,19 @@ class _ClassFormState extends State<_ClassForm> {
       );
 
       if (widget.initialData == null) {
-        await widget.classesService.createClass(newClass);
+        final createdClass = await widget.classesService.createClass(newClass);
+        // Crear la primera sesión programada
+        final newSched = ClassSchedule(
+          id: '',
+          classId: createdClass.id,
+          instructorId: _selectedInstructor?.id,
+          startTime: _startTime,
+          endTime: _endTime,
+          capacity: int.tryParse(_capacityCtrl.text) ?? 20,
+          locationName: _locationCtrl.text,
+          isLive: _isLive,
+        );
+        await widget.classesService.createSchedule(newSched);
       } else {
         await widget.classesService.updateClass(newClass);
       }
@@ -470,6 +526,86 @@ class _ClassFormState extends State<_ClassForm> {
               ),
               const SizedBox(height: 24),
 
+              if (widget.initialData == null) ...[
+                const Divider(color: Colors.white24),
+                const SizedBox(height: 12),
+                const Text("Primera Sesión (Opcional)", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+
+                DropdownButtonFormField<Profile>(
+                  value: _selectedInstructor,
+                  dropdownColor: surfaceColor,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputDecoration("Instructor (Opcional)"),
+                  items: widget.instructors.map((c) => DropdownMenuItem(value: c, child: Text(c.fullName ?? 'Sin nombre'))).toList(),
+                  onChanged: (v) => setState(() => _selectedInstructor = v),
+                ),
+                const SizedBox(height: 12),
+                
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _pickDateTime(true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                          decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(12)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Inicio", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                              const SizedBox(height: 4),
+                              Text(DateFormat('dd MMM, h:mm a').format(_startTime), style: const TextStyle(color: Colors.white)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _pickDateTime(false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                          decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(12)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Fin", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                              const SizedBox(height: 4),
+                              Text(DateFormat('dd MMM, h:mm a').format(_endTime), style: const TextStyle(color: Colors.white)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _capacityCtrl,
+                        style: const TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.number,
+                        decoration: _inputDecoration("Capacidad"),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _locationCtrl,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: _inputDecoration("Ubicación/Sala"),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
+
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -505,7 +641,7 @@ class _ClassFormState extends State<_ClassForm> {
 class _ScheduleForm extends StatefulWidget {
   final ClassSchedule? initialData;
   final List<ClassModel> classes;
-  final List<Instructor> instructors;
+  final List<Profile> instructors;
   final ClassesService classesService;
   final VoidCallback onSaved;
 
@@ -518,7 +654,7 @@ class _ScheduleForm extends StatefulWidget {
 class _ScheduleFormState extends State<_ScheduleForm> {
   final _formKey = GlobalKey<FormState>();
   ClassModel? _selectedClass;
-  Instructor? _selectedInstructor;
+  Profile? _selectedInstructor;
   late TextEditingController _capacityCtrl;
   late TextEditingController _locationCtrl;
   DateTime _startTime = DateTime.now().add(const Duration(days: 1));
@@ -645,12 +781,12 @@ class _ScheduleFormState extends State<_ScheduleForm> {
               ),
               const SizedBox(height: 12),
 
-              DropdownButtonFormField<Instructor>(
+              DropdownButtonFormField<Profile>(
                 value: _selectedInstructor,
                 dropdownColor: surfaceColor,
                 style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration("Instructor (Opcional)"),
-                items: widget.instructors.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
+                items: widget.instructors.map((c) => DropdownMenuItem(value: c, child: Text(c.fullName ?? 'Sin nombre'))).toList(),
                 onChanged: (v) => setState(() => _selectedInstructor = v),
               ),
               const SizedBox(height: 12),

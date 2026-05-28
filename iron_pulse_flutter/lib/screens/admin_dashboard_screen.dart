@@ -6,7 +6,9 @@ import '../services/bookings_service.dart';
 import '../services/supabase_auth_service.dart';
 import '../services/profile_service.dart';
 import 'student_management_screen.dart';
+import 'user_management_screen.dart';
 import 'admin/manage_class_screen.dart';
+import '../login_page.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -544,9 +546,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 "EN CURSO AHORA",
                 style: TextStyle(color: slate500, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
               ),
-              Text(
-                "Ver Todas",
-                style: TextStyle(color: primary, fontSize: 14, fontWeight: FontWeight.w600),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageClassScreen(initialIndex: 1))).then((_) => _loadData());
+                },
+                child: Text(
+                  "Ver Todas",
+                  style: TextStyle(color: primary, fontSize: 14, fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
@@ -714,7 +721,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentManagementScreen()));
                           },
                           child: Text(
-                            "Gestionar Clase",
+                            "Gestionar Asistencia",
                             style: TextStyle(color: primary, fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -769,13 +776,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageClassScreen())).then((_) => _loadData());
               }),
               _buildNavItem(Icons.group, "Usuarios", false, () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentManagementScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const UserManagementScreen()));
               }),
               _buildNavItem(Icons.settings, "Ajustes", false, () {
                 // Config
               }),
               _buildNavItem(Icons.logout, "Salir", false, () async {
                 await SupabaseAuthService().signOut();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                    (route) => false,
+                  );
+                }
               }),
             ],
           ),

@@ -29,7 +29,7 @@ class BookingsService {
             class_schedules (
               *,
               classes (*),
-              instructors (*)
+              profiles (*)
             )
           ''')
           .eq('user_id', userId)
@@ -107,6 +107,60 @@ class BookingsService {
   }
 
   // --- Admin Methods ---
+
+  Future<Map<String, dynamic>> getInstructorDashboardMetrics(String instructorId) async {
+    try {
+      final nowLocal = DateTime.now();
+      final startOfDayLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
+      final endOfDayLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day, 23, 59, 59, 999);
+      
+      final startOfDayStr = startOfDayLocal.toUtc().toIso8601String();
+      final endOfDayStr = endOfDayLocal.toUtc().toIso8601String();
+
+      // Schedules today
+      final schedulesResponse = await _client
+          .from('class_schedules')
+          .select('id, capacity')
+          .eq('instructor_id', instructorId)
+          .gte('start_time', startOfDayStr)
+          .lte('start_time', endOfDayStr);
+
+      int totalCapacity = 0;
+      List<String> scheduleIds = [];
+      for (var s in schedulesResponse as List) {
+        totalCapacity += (s['capacity'] as int? ?? 0);
+        scheduleIds.add(s['id'] as String);
+      }
+
+      int totalStudents = 0;
+      double occupancyRate = 0.0;
+
+      if (scheduleIds.isNotEmpty) {
+        final bookings = await _client
+            .from('bookings')
+            .select('status')
+            .inFilter('schedule_id', scheduleIds)
+            .eq('status', 'confirmed');
+        
+        totalStudents = (bookings as List).length;
+        occupancyRate = totalCapacity > 0 ? (totalStudents / totalCapacity) * 100 : 0.0;
+      }
+
+      return {
+        'scheduled_classes_today': scheduleIds.length,
+        'total_students_today': totalStudents,
+        'occupancy_rate': occupancyRate,
+      };
+
+    } catch (e) {
+      print('Error getting instructor dashboard metrics: $e');
+      return {
+        'scheduled_classes_today': 0,
+        'total_students_today': 0,
+        'occupancy_rate': 0.0,
+      };
+    }
+  }
 
   Future<List<Booking>> getBookingsForSchedule(String scheduleId) async {
     try {
@@ -305,7 +359,7 @@ class BookingsService {
       // Try to find one happening right now
       var liveClassResponse = await _client
           .from('class_schedules')
-          .select('*, classes(*), instructors(*)')
+          .select('*, classes(*), profiles(*)')
           .lte('start_time', nowStrSingle)
           .gte('end_time', nowStrSingle)
           .maybeSingle();
@@ -314,7 +368,7 @@ class BookingsService {
         // Find next upcoming globally (no lte todayEnd so we catch 2026 dates)
         liveClassResponse = await _client
             .from('class_schedules')
-            .select('*, classes(*), instructors(*)')
+            .select('*, classes(*), profiles(*)')
             .gte('start_time', nowStrSingle)
             .order('start_time', ascending: true)
             .limit(1)

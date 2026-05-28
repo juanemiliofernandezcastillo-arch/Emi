@@ -227,15 +227,18 @@ class WorkoutRoutine {
 
 // --- NEW BOOKING MODELS ---
 
-enum UserRole { admin, client }
+enum UserRole { admin, client, instructor }
 
 UserRole _parseUserRole(String? value) {
   if (value == 'admin') return UserRole.admin;
+  if (value == 'instructor') return UserRole.instructor;
   return UserRole.client;
 }
 
 String _roleToString(UserRole role) {
-  return role == UserRole.admin ? 'admin' : 'client';
+  if (role == UserRole.admin) return 'admin';
+  if (role == UserRole.instructor) return 'instructor';
+  return 'client';
 }
 
 enum BookingStatus { confirmed, waitlist, cancelled }
@@ -369,50 +372,6 @@ class Category {
   int get hashCode => id.hashCode;
 }
 
-class Instructor {
-  final String id;
-  final String name;
-  final String? avatarUrl;
-  final String? bio;
-  final double rating;
-
-  Instructor({
-    required this.id,
-    required this.name,
-    this.avatarUrl,
-    this.bio,
-    this.rating = 5.0,
-  });
-
-  factory Instructor.fromJson(Map<String, dynamic> json) {
-    return Instructor(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      avatarUrl: json['avatar_url'] as String?,
-      bio: json['bio'] as String?,
-      rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'avatar_url': avatarUrl,
-      'bio': bio,
-      'rating': rating,
-    };
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is Instructor && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
-}
 
 class ClassModel {
   final String id;
@@ -471,6 +430,50 @@ class ClassModel {
   int get hashCode => id.hashCode;
 }
 
+class Instructor {
+  final String id;
+  final String name;
+  final String? avatarUrl;
+  final String? bio;
+  final double rating;
+  final int? yearsOfExperience;
+  final List<String>? specialties;
+
+  Instructor({
+    required this.id,
+    required this.name,
+    this.avatarUrl,
+    this.bio,
+    this.rating = 5.0,
+    this.yearsOfExperience,
+    this.specialties,
+  });
+
+  factory Instructor.fromJson(Map<String, dynamic> json) {
+    return Instructor(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      avatarUrl: json['avatar_url'] as String?,
+      bio: json['bio'] as String?,
+      rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
+      yearsOfExperience: json['years_of_experience'] as int?,
+      specialties: json['specialties'] != null ? List<String>.from(json['specialties']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'avatar_url': avatarUrl,
+      'bio': bio,
+      'rating': rating,
+      'years_of_experience': yearsOfExperience,
+      'specialties': specialties,
+    };
+  }
+}
+
 class ClassSchedule {
   final String id;
   final String classId;
@@ -483,7 +486,7 @@ class ClassSchedule {
 
   // For nested relations
   final ClassModel? classModel;
-  final Instructor? instructor;
+  final Profile? instructor;
   final int? bookedCount;
 
   ClassSchedule({
@@ -511,7 +514,7 @@ class ClassSchedule {
       locationName: json['location_name'] as String?,
       isLive: json['is_live'] as bool? ?? false,
       classModel: json['classes'] != null ? ClassModel.fromJson(json['classes']) : null,
-      instructor: json['instructors'] != null ? Instructor.fromJson(json['instructors']) : null,
+      instructor: json['profiles'] != null ? Profile.fromJson(json['profiles']) : null,
       bookedCount: json['booked_count'] as int?,
     );
   }

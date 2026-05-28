@@ -19,6 +19,15 @@ class ProfileService {
     return Profile.fromJson(response);
   }
 
+  Future<List<Profile>> getAllProfiles() async {
+    final response = await _client
+        .from('profiles')
+        .select()
+        .order('full_name', ascending: true);
+        
+    return (response as List).map((p) => Profile.fromJson(p)).toList();
+  }
+
   Future<Profile> updateProfile(Profile profile) async {
     final response = await _client
         .from('profiles')
